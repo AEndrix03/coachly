@@ -1,0 +1,73 @@
+services:
+  coachly-users-be:
+    build:
+      context: ./coachly-users-be
+      dockerfile: Dockerfile
+    container_name: coachly-users-be
+    environment:
+      COACHLY_DB_URL: jdbc:postgresql://dev.aredegalli.it:5432/coachlys
+      COACHLY_DB_USERNAME: postgres
+      COACHLY_DB_PASSWORD: igSMLpZajwpRExnOceToecnxbQNoRlaq
+      SERVER_PORT: 8080
+    expose:
+      - "8080"
+    ports:
+      - "9100:8080"
+    restart: unless-stopped
+
+  coachly-workouts-be:
+    build:
+      context: ./coachly-workouts-be
+      dockerfile: Dockerfile
+    container_name: coachly-workouts-be
+    environment:
+      COACHLY_DB_URL: jdbc:postgresql://dev.aredegalli.it:5432/coachlys
+      COACHLY_DB_USERNAME: postgres
+      COACHLY_DB_PASSWORD: igSMLpZajwpRExnOceToecnxbQNoRlaq
+      SERVER_PORT: 8080
+    expose:
+      - "8080"
+    ports:
+      - "9101:8080"
+    restart: unless-stopped
+
+  coachly-exercises-be:
+    build:
+      context: ./coachly-exercises-be
+      dockerfile: Dockerfile
+    container_name: coachly-exercises-be
+    environment:
+      COACHLY_DB_URL: jdbc:postgresql://dev.aredegalli.it:5432/coachlys
+      COACHLY_DB_USERNAME: postgres
+      COACHLY_DB_PASSWORD: igSMLpZajwpRExnOceToecnxbQNoRlaq
+      SERVER_PORT: 8080
+    expose:
+      - "8080"
+    ports:
+      - "9102:8080"
+    restart: unless-stopped
+
+  coachly-api-gateway:
+    build:
+      context: ./coachly-api-gateway
+      dockerfile: Dockerfile
+    container_name: coachly-api-gateway
+    depends_on:
+      - coachly-users-be
+      - coachly-workouts-be
+      - coachly-exercises-be
+    environment:
+      SERVER_PORT: 8443
+      USERS_SERVICE_URI: http://coachly-users-be:8080
+      WORKOUTS_SERVICE_URI: http://coachly-workouts-be:8080
+      EXERCISES_SERVICE_URI: http://coachly-exercises-be:8080
+      KEYCLOAK_ISSUER_URI: https://auth.aredegalli.it/realms/coachly-app
+      COACHLY_KEYSTORE_PASSWORD: ${COACHLY_KEYSTORE_PASSWORD}
+      COACHLY_CORS_ALLOWED_ORIGINS: ${COACHLY_CORS_ALLOWED_ORIGINS:*}
+      COACHLY_CORS_ALLOWED_METHODS: ${COACHLY_CORS_ALLOWED_METHODS:*}
+      COACHLY_CORS_ALLOWED_HEADERS: ${COACHLY_CORS_ALLOWED_HEADERS:*}
+      COACHLY_CORS_ALLOW_CREDENTIALS: ${COACHLY_CORS_ALLOW_CREDENTIALS:false}
+      COACHLY_CORS_MAX_AGE: ${COACHLY_CORS_MAX_AGE:3600}
+    ports:
+      - "8800:8443"
+    restart: unless-stopped
