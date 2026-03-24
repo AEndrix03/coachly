@@ -1,0 +1,4696 @@
+[
+  {
+    "id": "en_log_90",
+    "lang": "en",
+    "text": "completed push ups five repetitions 50 pounds",
+    "intent": "LOG_SET",
+    "words": [
+      "completed",
+      "push",
+      "ups",
+      "five",
+      "repetitions",
+      "50",
+      "pounds"
+    ],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "fr_unk_4",
+    "lang": "fr",
+    "text": "quelle heure est-il",
+    "intent": "UNKNOWN",
+    "words": ["quelle", "heure", "est-il"],
+    "ner_tags": ["O", "O", "O"]
+  },
+  {
+    "id": "es_log_implicit_10",
+    "lang": "es",
+    "text": "hecho 4 reps",
+    "intent": "LOG_SET",
+    "words": ["hecho", "4", "reps"],
+    "ner_tags": ["O", "B-REP", "O"]
+  },
+  {
+    "id": "fr_update_45",
+    "lang": "fr",
+    "text": "corrige leg press 8 reps",
+    "intent": "UPDATE_SET",
+    "words": ["corrige", "leg", "press", "8", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "it_log_implicit_26",
+    "lang": "it",
+    "text": "ok 15",
+    "intent": "LOG_SET",
+    "words": ["ok", "15"],
+    "ner_tags": ["O", "B-REP"]
+  },
+  {
+    "id": "it_add_168",
+    "lang": "it",
+    "text": "plank 4 serie da otto 105 kg",
+    "intent": "ADD_EXERCISE",
+    "words": ["plank", "4", "serie", "da", "otto", "105", "kg"],
+    "ner_tags": ["B-EXE", "B-SET", "O", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "es_add_2",
+    "lang": "es",
+    "text": "añade press banca cuatro x 10 130 kg",
+    "intent": "ADD_EXERCISE",
+    "words": ["añade", "press", "banca", "cuatro", "x", "10", "130", "kg"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "fr_log_implicit_44",
+    "lang": "fr",
+    "text": "fait 8 reps 40 kilos",
+    "intent": "LOG_SET",
+    "words": ["fait", "8", "reps", "40", "kilos"],
+    "ner_tags": ["O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_log_60",
+    "lang": "it",
+    "text": "fatto 8 cable crunch",
+    "intent": "LOG_SET",
+    "words": ["fatto", "8", "cable", "crunch"],
+    "ner_tags": ["O", "B-REP", "B-EXE", "I-EXE"]
+  },
+  {
+    "id": "it_multi_7",
+    "lang": "it",
+    "text": "aggiungi pec deck 3 x 12 poi face pull 6 x 8 e pull up 6 x 5",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "aggiungi",
+      "pec",
+      "deck",
+      "3",
+      "x",
+      "12",
+      "poi",
+      "face",
+      "pull",
+      "6",
+      "x",
+      "8",
+      "e",
+      "pull",
+      "up",
+      "6",
+      "x",
+      "5"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "de_add_43",
+    "lang": "de",
+    "text": "mach skull crusher 4 sätze 5 reps 85 kilogramm",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "mach",
+      "skull",
+      "crusher",
+      "4",
+      "sätze",
+      "5",
+      "reps",
+      "85",
+      "kilogramm"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "es_add_309",
+    "lang": "es",
+    "text": "añade giro ruso 3 x 12 105 kg",
+    "intent": "ADD_EXERCISE",
+    "words": ["añade", "giro", "ruso", "3", "x", "12", "105", "kg"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_add_236",
+    "lang": "en",
+    "text": "calf raise 3 sets fifteen reps",
+    "intent": "ADD_EXERCISE",
+    "words": ["calf", "raise", "3", "sets", "fifteen", "reps"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "O"]
+  },
+  {
+    "id": "en_multi_13",
+    "lang": "en",
+    "text": "add pec deck two x 8 then abs crunches 3 x fifteen then leg press five x six",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "add",
+      "pec",
+      "deck",
+      "two",
+      "x",
+      "8",
+      "then",
+      "abs",
+      "crunches",
+      "3",
+      "x",
+      "fifteen",
+      "then",
+      "leg",
+      "press",
+      "five",
+      "x",
+      "six"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "fr_add_68",
+    "lang": "fr",
+    "text": "curl haltères quatre séries 8 répétitions 80 livres",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "curl",
+      "haltères",
+      "quatre",
+      "séries",
+      "8",
+      "répétitions",
+      "80",
+      "livres"
+    ],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_multi_73",
+    "lang": "en",
+    "text": "add dumbbell curls 2 x 10 , pec deck four x 20",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "add",
+      "dumbbell",
+      "curls",
+      "2",
+      "x",
+      "10",
+      ",",
+      "pec",
+      "deck",
+      "four",
+      "x",
+      "20"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "it_log_130",
+    "lang": "it",
+    "text": "completato face pull 12 reps",
+    "intent": "LOG_SET",
+    "words": ["completato", "face", "pull", "12", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "it_log_128",
+    "lang": "it",
+    "text": "completato sollevamenti gambe 12 reps",
+    "intent": "LOG_SET",
+    "words": ["completato", "sollevamenti", "gambe", "12", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "es_unk_8",
+    "lang": "es",
+    "text": "qué hora es",
+    "intent": "UNKNOWN",
+    "words": ["qué", "hora", "es"],
+    "ner_tags": ["O", "O", "O"]
+  },
+  {
+    "id": "de_add_186",
+    "lang": "de",
+    "text": "hinzufügen flachbank 5 x sechs 30 kg",
+    "intent": "ADD_EXERCISE",
+    "words": ["hinzufügen", "flachbank", "5", "x", "sechs", "30", "kg"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_add_274",
+    "lang": "de",
+    "text": "hantelcurl zwei x zwanzig 120 kilo",
+    "intent": "ADD_EXERCISE",
+    "words": ["hantelcurl", "zwei", "x", "zwanzig", "120", "kilo"],
+    "ner_tags": ["B-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_log_68",
+    "lang": "it",
+    "text": "ho fatto calf raise 4 rep 80 kilo",
+    "intent": "LOG_SET",
+    "words": ["ho", "fatto", "calf", "raise", "4", "rep", "80", "kilo"],
+    "ner_tags": ["O", "O", "B-EXE", "I-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_add_188",
+    "lang": "en",
+    "text": "i want to do deadlift four sets 5 reps",
+    "intent": "ADD_EXERCISE",
+    "words": ["i", "want", "to", "do", "deadlift", "four", "sets", "5", "reps"],
+    "ner_tags": ["O", "O", "O", "O", "B-EXE", "B-SET", "O", "B-REP", "O"]
+  },
+  {
+    "id": "fr_add_260",
+    "lang": "fr",
+    "text": "écartés latéraux 2 x 15",
+    "intent": "ADD_EXERCISE",
+    "words": ["écartés", "latéraux", "2", "x", "15"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP"]
+  },
+  {
+    "id": "it_log_77",
+    "lang": "it",
+    "text": "fatto tricep pushdown 10 ripetizioni",
+    "intent": "LOG_SET",
+    "words": ["fatto", "tricep", "pushdown", "10", "ripetizioni"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "it_add_195",
+    "lang": "it",
+    "text": "aggiungi skull crusher 4 x otto 120 kilo",
+    "intent": "ADD_EXERCISE",
+    "words": ["aggiungi", "skull", "crusher", "4", "x", "otto", "120", "kilo"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_log_42",
+    "lang": "en",
+    "text": "just did lateral raises 12 times 30 kilograms",
+    "intent": "LOG_SET",
+    "words": [
+      "just",
+      "did",
+      "lateral",
+      "raises",
+      "12",
+      "times",
+      "30",
+      "kilograms"
+    ],
+    "ner_tags": ["O", "O", "B-EXE", "I-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_add_43",
+    "lang": "en",
+    "text": "log bench press six times 20",
+    "intent": "ADD_EXERCISE",
+    "words": ["log", "bench", "press", "six", "times", "20"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP"]
+  },
+  {
+    "id": "en_multi_47",
+    "lang": "en",
+    "text": "add incline bench press 3 x 4 , incline bench 2 x 15 , face pull 2 x 4",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "add",
+      "incline",
+      "bench",
+      "press",
+      "3",
+      "x",
+      "4",
+      ",",
+      "incline",
+      "bench",
+      "2",
+      "x",
+      "15",
+      ",",
+      "face",
+      "pull",
+      "2",
+      "x",
+      "4"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "it_log_41",
+    "lang": "it",
+    "text": "ho fatto pushdown ai cavi 8 rep 32.5 chili",
+    "intent": "LOG_SET",
+    "words": [
+      "ho",
+      "fatto",
+      "pushdown",
+      "ai",
+      "cavi",
+      "8",
+      "rep",
+      "32.5",
+      "chili"
+    ],
+    "ner_tags": [
+      "O",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "es_add_238",
+    "lang": "es",
+    "text": "pon lateral raise tres series de ocho repeticiones 82.5 libras",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "pon",
+      "lateral",
+      "raise",
+      "tres",
+      "series",
+      "de",
+      "ocho",
+      "repeticiones",
+      "82.5",
+      "libras"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "fr_add_270",
+    "lang": "fr",
+    "text": "insère cable crunch 4 x 5 100 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": ["insère", "cable", "crunch", "4", "x", "5", "100", "kilos"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "fr_add_163",
+    "lang": "fr",
+    "text": "insère pec deck 5 x 12 20 kilogrammes",
+    "intent": "ADD_EXERCISE",
+    "words": ["insère", "pec", "deck", "5", "x", "12", "20", "kilogrammes"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_add_296",
+    "lang": "en",
+    "text": "add abs crunches 5 sets of 10 reps 65 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "add",
+      "abs",
+      "crunches",
+      "5",
+      "sets",
+      "of",
+      "10",
+      "reps",
+      "65",
+      "kilos"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "it_add_294",
+    "lang": "it",
+    "text": "aggiungi dip 2 x 8 80 kg",
+    "intent": "ADD_EXERCISE",
+    "words": ["aggiungi", "dip", "2", "x", "8", "80", "kg"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_delete_40",
+    "lang": "de",
+    "text": "entferne squat",
+    "intent": "DELETE_EXERCISE",
+    "words": ["entferne", "squat"],
+    "ner_tags": ["O", "B-EXE"]
+  },
+  {
+    "id": "en_add_109",
+    "lang": "en",
+    "text": "add pec deck 5 x 12",
+    "intent": "ADD_EXERCISE",
+    "words": ["add", "pec", "deck", "5", "x", "12"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP"]
+  },
+  {
+    "id": "fr_add_312",
+    "lang": "fr",
+    "text": "insère tractions 5 x 6",
+    "intent": "ADD_EXERCISE",
+    "words": ["insère", "tractions", "5", "x", "6"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP"]
+  },
+  {
+    "id": "es_update_33",
+    "lang": "es",
+    "text": "cambia fondos 6 reps 70 kg",
+    "intent": "UPDATE_SET",
+    "words": ["cambia", "fondos", "6", "reps", "70", "kg"],
+    "ner_tags": ["O", "B-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "es_add_266",
+    "lang": "es",
+    "text": "jalón tríceps 5 series 5 repeticiones 70 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "jalón",
+      "tríceps",
+      "5",
+      "series",
+      "5",
+      "repeticiones",
+      "70",
+      "kilos"
+    ],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "es_unk_19",
+    "lang": "es",
+    "text": "hola",
+    "intent": "UNKNOWN",
+    "words": ["hola"],
+    "ner_tags": ["O"]
+  },
+  {
+    "id": "en_delete_26",
+    "lang": "en",
+    "text": "take out bench press",
+    "intent": "DELETE_EXERCISE",
+    "words": ["take out", "bench", "press"],
+    "ner_tags": ["O", "B-EXE", "I-EXE"]
+  },
+  {
+    "id": "it_multi_50",
+    "lang": "it",
+    "text": "aggiungi cable crunch 6 x 12 e cable row 6 x 20",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "aggiungi",
+      "cable",
+      "crunch",
+      "6",
+      "x",
+      "12",
+      "e",
+      "cable",
+      "row",
+      "6",
+      "x",
+      "20"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "en_delete_8",
+    "lang": "en",
+    "text": "drop cable row",
+    "intent": "DELETE_EXERCISE",
+    "words": ["drop", "cable", "row"],
+    "ner_tags": ["O", "B-EXE", "I-EXE"]
+  },
+  {
+    "id": "en_update_47",
+    "lang": "en",
+    "text": "update pull ups 15 reps",
+    "intent": "UPDATE_SET",
+    "words": ["update", "pull", "ups", "15", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "de_update_25",
+    "lang": "de",
+    "text": "aktualisiere schrägbankdrücken 10 reps",
+    "intent": "UPDATE_SET",
+    "words": ["aktualisiere", "schrägbankdrücken", "10", "reps"],
+    "ner_tags": ["O", "B-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "fr_add_225",
+    "lang": "fr",
+    "text": "pushdown 3 x 10",
+    "intent": "ADD_EXERCISE",
+    "words": ["pushdown", "3", "x", "10"],
+    "ner_tags": ["B-EXE", "B-SET", "O", "B-REP"]
+  },
+  {
+    "id": "de_add_192",
+    "lang": "de",
+    "text": "mach militärpresse 5 sätze 20 reps 100 kilo",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "mach",
+      "militärpresse",
+      "5",
+      "sätze",
+      "20",
+      "reps",
+      "100",
+      "kilo"
+    ],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_add_285",
+    "lang": "de",
+    "text": "hinzufügen butterfly drei x 12 125 kg",
+    "intent": "ADD_EXERCISE",
+    "words": ["hinzufügen", "butterfly", "drei", "x", "12", "125", "kg"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_add_79",
+    "lang": "de",
+    "text": "füge hinzu frontheben 4 sätze 20 wiederholungen 62.5 kilo",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "füge",
+      "hinzu",
+      "frontheben",
+      "4",
+      "sätze",
+      "20",
+      "wiederholungen",
+      "62.5",
+      "kilo"
+    ],
+    "ner_tags": [
+      "O",
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "en_unk_37",
+    "lang": "en",
+    "text": "hello",
+    "intent": "UNKNOWN",
+    "words": ["hello"],
+    "ner_tags": ["O"]
+  },
+  {
+    "id": "it_delete_22",
+    "lang": "it",
+    "text": "cancella push up",
+    "intent": "DELETE_EXERCISE",
+    "words": ["cancella", "push", "up"],
+    "ner_tags": ["O", "B-EXE", "I-EXE"]
+  },
+  {
+    "id": "fr_add_155",
+    "lang": "fr",
+    "text": "note pompes 4 séries de 8 répétitions 50 kilogrammes",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "note",
+      "pompes",
+      "4",
+      "séries",
+      "de",
+      "8",
+      "répétitions",
+      "50",
+      "kilogrammes"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "it_add_211",
+    "lang": "it",
+    "text": "aggiungi panca inclinata cinque serie da 12",
+    "intent": "ADD_EXERCISE",
+    "words": ["aggiungi", "panca", "inclinata", "cinque", "serie", "da", "12"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "O", "B-REP"]
+  },
+  {
+    "id": "en_add_280",
+    "lang": "en",
+    "text": "cable row 2 sets 20 reps 40 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": ["cable", "row", "2", "sets", "20", "reps", "40", "kilos"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_multi_19",
+    "lang": "en",
+    "text": "add standing calf raise six x 6 then barbell row 3 x 12 then romanian deadlift four x 20",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "add",
+      "standing",
+      "calf",
+      "raise",
+      "six",
+      "x",
+      "6",
+      "then",
+      "barbell",
+      "row",
+      "3",
+      "x",
+      "12",
+      "then",
+      "romanian",
+      "deadlift",
+      "four",
+      "x",
+      "20"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "es_add_61",
+    "lang": "es",
+    "text": "curl con mancuernas 2 series veinte repeticiones 50 kilogramos",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "curl",
+      "con",
+      "mancuernas",
+      "2",
+      "series",
+      "veinte",
+      "repeticiones",
+      "50",
+      "kilogramos"
+    ],
+    "ner_tags": [
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "es_add_306",
+    "lang": "es",
+    "text": "plank 6 x 4",
+    "intent": "ADD_EXERCISE",
+    "words": ["plank", "6", "x", "4"],
+    "ner_tags": ["B-EXE", "B-SET", "O", "B-REP"]
+  },
+  {
+    "id": "fr_add_245",
+    "lang": "fr",
+    "text": "planche deux x 20",
+    "intent": "ADD_EXERCISE",
+    "words": ["planche", "deux", "x", "20"],
+    "ner_tags": ["B-EXE", "B-SET", "O", "B-REP"]
+  },
+  {
+    "id": "it_add_199",
+    "lang": "it",
+    "text": "metti curl femorali 8 ripetizioni per 6 serie",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "metti",
+      "curl",
+      "femorali",
+      "8",
+      "ripetizioni",
+      "per",
+      "6",
+      "serie"
+    ],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O", "O", "B-SET", "O"]
+  },
+  {
+    "id": "en_log_34",
+    "lang": "en",
+    "text": "just did tricep pushdown 15 times 132.5 kilograms",
+    "intent": "LOG_SET",
+    "words": [
+      "just",
+      "did",
+      "tricep",
+      "pushdown",
+      "15",
+      "times",
+      "132.5",
+      "kilograms"
+    ],
+    "ner_tags": ["O", "O", "B-EXE", "I-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "es_add_260",
+    "lang": "es",
+    "text": "pon jalón al pecho 3 series de 6 repeticiones",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "pon",
+      "jalón",
+      "al",
+      "pecho",
+      "3",
+      "series",
+      "de",
+      "6",
+      "repeticiones"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O"
+    ]
+  },
+  {
+    "id": "en_log_implicit_37",
+    "lang": "en",
+    "text": "done 20 reps",
+    "intent": "LOG_SET",
+    "words": ["done", "20", "reps"],
+    "ner_tags": ["O", "B-REP", "O"]
+  },
+  {
+    "id": "es_add_154",
+    "lang": "es",
+    "text": "polea alta 4 x quince",
+    "intent": "ADD_EXERCISE",
+    "words": ["polea", "alta", "4", "x", "quince"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP"]
+  },
+  {
+    "id": "it_log_122",
+    "lang": "it",
+    "text": "ok fatto pressa 15 reps",
+    "intent": "LOG_SET",
+    "words": ["ok", "fatto", "pressa", "15", "reps"],
+    "ner_tags": ["O", "O", "B-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "en_log_95",
+    "lang": "en",
+    "text": "completed incline bench five repetitions 120 kg",
+    "intent": "LOG_SET",
+    "words": [
+      "completed",
+      "incline",
+      "bench",
+      "five",
+      "repetitions",
+      "120",
+      "kg"
+    ],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_add_283",
+    "lang": "en",
+    "text": "i want to do leg raises six sets 4 reps 25 pounds",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "i",
+      "want",
+      "to",
+      "do",
+      "leg",
+      "raises",
+      "six",
+      "sets",
+      "4",
+      "reps",
+      "25",
+      "pounds"
+    ],
+    "ner_tags": [
+      "O",
+      "O",
+      "O",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "es_add_230",
+    "lang": "es",
+    "text": "insertar dominadas 3 x 8 90 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": ["insertar", "dominadas", "3", "x", "8", "90", "kilos"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_log_implicit_3",
+    "lang": "it",
+    "text": "fatto 5 reps",
+    "intent": "LOG_SET",
+    "words": ["fatto", "5", "reps"],
+    "ner_tags": ["O", "B-REP", "O"]
+  },
+  {
+    "id": "es_update_2",
+    "lang": "es",
+    "text": "modifica prensa de piernas doce reps 90 libras",
+    "intent": "UPDATE_SET",
+    "words": [
+      "modifica",
+      "prensa",
+      "de",
+      "piernas",
+      "doce",
+      "reps",
+      "90",
+      "libras"
+    ],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "I-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_delete_19",
+    "lang": "de",
+    "text": "entferne squat",
+    "intent": "DELETE_EXERCISE",
+    "words": ["entferne", "squat"],
+    "ner_tags": ["O", "B-EXE"]
+  },
+  {
+    "id": "it_add_6",
+    "lang": "it",
+    "text": "aggiungi lat pulldown 5 serie da 10 ripetizioni",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "aggiungi",
+      "lat",
+      "pulldown",
+      "5",
+      "serie",
+      "da",
+      "10",
+      "ripetizioni"
+    ],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "O", "B-REP", "O"]
+  },
+  {
+    "id": "fr_add_213",
+    "lang": "fr",
+    "text": "ajouter lat pulldown 3 x 6 40 kg",
+    "intent": "ADD_EXERCISE",
+    "words": ["ajouter", "lat", "pulldown", "3", "x", "6", "40", "kg"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_delete_21",
+    "lang": "en",
+    "text": "drop plank",
+    "intent": "DELETE_EXERCISE",
+    "words": ["drop", "plank"],
+    "ner_tags": ["O", "B-EXE"]
+  },
+  {
+    "id": "en_add_24",
+    "lang": "en",
+    "text": "tricep pushdown five sets 12 reps 40 kg",
+    "intent": "ADD_EXERCISE",
+    "words": ["tricep", "pushdown", "five", "sets", "12", "reps", "40", "kg"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "es_add_85",
+    "lang": "es",
+    "text": "giro ruso 6 series 4 repeticiones 50 libras",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "giro",
+      "ruso",
+      "6",
+      "series",
+      "4",
+      "repeticiones",
+      "50",
+      "libras"
+    ],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_update_72",
+    "lang": "en",
+    "text": "edit lat machine 4 reps",
+    "intent": "UPDATE_SET",
+    "words": ["edit", "lat", "machine", "4", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "en_delete_17",
+    "lang": "en",
+    "text": "drop crunches",
+    "intent": "DELETE_EXERCISE",
+    "words": ["drop", "crunches"],
+    "ner_tags": ["O", "B-EXE"]
+  },
+  {
+    "id": "es_delete_12",
+    "lang": "es",
+    "text": "elimina leg curl",
+    "intent": "DELETE_EXERCISE",
+    "words": ["elimina", "leg", "curl"],
+    "ner_tags": ["O", "B-EXE", "I-EXE"]
+  },
+  {
+    "id": "de_log_implicit_39",
+    "lang": "de",
+    "text": "fertig 15 reps 120 kg",
+    "intent": "LOG_SET",
+    "words": ["fertig", "15", "reps", "120", "kg"],
+    "ner_tags": ["O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_unk_19",
+    "lang": "it",
+    "text": "esercizio sbagliato",
+    "intent": "UNKNOWN",
+    "words": ["esercizio", "sbagliato"],
+    "ner_tags": ["O", "O"]
+  },
+  {
+    "id": "en_add_258",
+    "lang": "en",
+    "text": "do dips six sets of fifteen 125 kilograms",
+    "intent": "ADD_EXERCISE",
+    "words": ["do", "dips", "six", "sets", "of", "fifteen", "125", "kilograms"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_add_5",
+    "lang": "en",
+    "text": "do hammer curls two sets of 20",
+    "intent": "ADD_EXERCISE",
+    "words": ["do", "hammer", "curls", "two", "sets", "of", "20"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "O", "B-REP"]
+  },
+  {
+    "id": "it_add_89",
+    "lang": "it",
+    "text": "voglio fare pushdown ai cavi cinque serie 6 reps",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "voglio",
+      "fare",
+      "pushdown",
+      "ai",
+      "cavi",
+      "cinque",
+      "serie",
+      "6",
+      "reps"
+    ],
+    "ner_tags": [
+      "O",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O"
+    ]
+  },
+  {
+    "id": "en_add_26",
+    "lang": "en",
+    "text": "log incline bench press four times 4",
+    "intent": "ADD_EXERCISE",
+    "words": ["log", "incline", "bench", "press", "four", "times", "4"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "I-EXE", "B-SET", "O", "B-REP"]
+  },
+  {
+    "id": "it_add_77",
+    "lang": "it",
+    "text": "aggiungi squat con bilanciere 6 serie da 4 ripetizioni 72.5 kilo",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "aggiungi",
+      "squat",
+      "con",
+      "bilanciere",
+      "6",
+      "serie",
+      "da",
+      "4",
+      "ripetizioni",
+      "72.5",
+      "kilo"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "fr_add_264",
+    "lang": "fr",
+    "text": "élévations latérales 4 x 10 65 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": ["élévations", "latérales", "4", "x", "10", "65", "kilos"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "es_add_156",
+    "lang": "es",
+    "text": "curl mancuernas dos series ocho repeticiones 52.5 libras",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "curl",
+      "mancuernas",
+      "dos",
+      "series",
+      "ocho",
+      "repeticiones",
+      "52.5",
+      "libras"
+    ],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_log_implicit_37",
+    "lang": "it",
+    "text": "fatto 10 reps",
+    "intent": "LOG_SET",
+    "words": ["fatto", "10", "reps"],
+    "ner_tags": ["O", "B-REP", "O"]
+  },
+  {
+    "id": "es_add_43",
+    "lang": "es",
+    "text": "pon cable crunch 3 series de 15 repeticiones 20 libras",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "pon",
+      "cable",
+      "crunch",
+      "3",
+      "series",
+      "de",
+      "15",
+      "repeticiones",
+      "20",
+      "libras"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "fr_add_162",
+    "lang": "fr",
+    "text": "note curl ischio-jambiers 6 séries de six répétitions",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "note",
+      "curl",
+      "ischio-jambiers",
+      "6",
+      "séries",
+      "de",
+      "six",
+      "répétitions"
+    ],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "O", "B-REP", "O"]
+  },
+  {
+    "id": "es_add_298",
+    "lang": "es",
+    "text": "agrega curl con barra 2 series de 15 reps 80 libras",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "agrega",
+      "curl",
+      "con",
+      "barra",
+      "2",
+      "series",
+      "de",
+      "15",
+      "reps",
+      "80",
+      "libras"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "it_add_212",
+    "lang": "it",
+    "text": "aggiungi calf raise 3 serie da 10",
+    "intent": "ADD_EXERCISE",
+    "words": ["aggiungi", "calf", "raise", "3", "serie", "da", "10"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "O", "B-REP"]
+  },
+  {
+    "id": "es_log_implicit_30",
+    "lang": "es",
+    "text": "hecho 12 reps",
+    "intent": "LOG_SET",
+    "words": ["hecho", "12", "reps"],
+    "ner_tags": ["O", "B-REP", "O"]
+  },
+  {
+    "id": "it_multi_67",
+    "lang": "it",
+    "text": "aggiungi lat pulldown sei x 4 , alzate laterali sei x 5 e flessioni 4 x venti",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "aggiungi",
+      "lat",
+      "pulldown",
+      "sei",
+      "x",
+      "4",
+      ",",
+      "alzate",
+      "laterali",
+      "sei",
+      "x",
+      "5",
+      "e",
+      "flessioni",
+      "4",
+      "x",
+      "venti"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "de_add_41",
+    "lang": "de",
+    "text": "hinzufügen lunges fünf x 20 80 kilogramm",
+    "intent": "ADD_EXERCISE",
+    "words": ["hinzufügen", "lunges", "fünf", "x", "20", "80", "kilogramm"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_update_36",
+    "lang": "it",
+    "text": "modifica alzate sui polpacci 20 reps 45 kg",
+    "intent": "UPDATE_SET",
+    "words": [
+      "modifica",
+      "alzate",
+      "sui",
+      "polpacci",
+      "20",
+      "reps",
+      "45",
+      "kg"
+    ],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "I-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_add_217",
+    "lang": "de",
+    "text": "füge hinzu russische drehung sechs sätze 8 wiederholungen",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "füge",
+      "hinzu",
+      "russische",
+      "drehung",
+      "sechs",
+      "sätze",
+      "8",
+      "wiederholungen"
+    ],
+    "ner_tags": ["O", "O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP", "O"]
+  },
+  {
+    "id": "es_update_19",
+    "lang": "es",
+    "text": "cambia plank 6 reps",
+    "intent": "UPDATE_SET",
+    "words": ["cambia", "plank", "6", "reps"],
+    "ner_tags": ["O", "B-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "it_delete_4",
+    "lang": "it",
+    "text": "cancella tricep pushdown",
+    "intent": "DELETE_EXERCISE",
+    "words": ["cancella", "tricep", "pushdown"],
+    "ner_tags": ["O", "B-EXE", "I-EXE"]
+  },
+  {
+    "id": "de_add_61",
+    "lang": "de",
+    "text": "hinzufügen leg extension sechs x 8",
+    "intent": "ADD_EXERCISE",
+    "words": ["hinzufügen", "leg", "extension", "sechs", "x", "8"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP"]
+  },
+  {
+    "id": "it_unk_18",
+    "lang": "it",
+    "text": "esercizio sbagliato",
+    "intent": "UNKNOWN",
+    "words": ["esercizio", "sbagliato"],
+    "ner_tags": ["O", "O"]
+  },
+  {
+    "id": "de_unk_18",
+    "lang": "de",
+    "text": "wie spät ist es",
+    "intent": "UNKNOWN",
+    "words": ["wie", "spät", "ist", "es"],
+    "ner_tags": ["O", "O", "O", "O"]
+  },
+  {
+    "id": "it_add_292",
+    "lang": "it",
+    "text": "voglio fare chest press 4 serie quattro reps 72.5 chilogrammi",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "voglio",
+      "fare",
+      "chest",
+      "press",
+      "4",
+      "serie",
+      "quattro",
+      "reps",
+      "72.5",
+      "chilogrammi"
+    ],
+    "ner_tags": [
+      "O",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "it_log_implicit_46",
+    "lang": "it",
+    "text": "completato 20 ripetizioni",
+    "intent": "LOG_SET",
+    "words": ["completato", "20", "ripetizioni"],
+    "ner_tags": ["O", "B-REP", "O"]
+  },
+  {
+    "id": "de_add_272",
+    "lang": "de",
+    "text": "calf raise 4 sätze 10 wiederholungen",
+    "intent": "ADD_EXERCISE",
+    "words": ["calf", "raise", "4", "sätze", "10", "wiederholungen"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "O"]
+  },
+  {
+    "id": "es_add_261",
+    "lang": "es",
+    "text": "agrega press pectoral 3 series de 8 reps 30 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "agrega",
+      "press",
+      "pectoral",
+      "3",
+      "series",
+      "de",
+      "8",
+      "reps",
+      "30",
+      "kilos"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "fr_add_66",
+    "lang": "fr",
+    "text": "ajouter écartés latéraux deux x 15 50 livres",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "ajouter",
+      "écartés",
+      "latéraux",
+      "deux",
+      "x",
+      "15",
+      "50",
+      "livres"
+    ],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_multi_72",
+    "lang": "en",
+    "text": "add lat machine 3 x 4 , incline bench press 6 x 8",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "add",
+      "lat",
+      "machine",
+      "3",
+      "x",
+      "4",
+      ",",
+      "incline",
+      "bench",
+      "press",
+      "6",
+      "x",
+      "8"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "en_log_99",
+    "lang": "en",
+    "text": "finished cable row 6 100 kilograms",
+    "intent": "LOG_SET",
+    "words": ["finished", "cable", "row", "6", "100", "kilograms"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "es_add_45",
+    "lang": "es",
+    "text": "quiero hacer lateral raise 6 series 8 40 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "quiero",
+      "hacer",
+      "lateral",
+      "raise",
+      "6",
+      "series",
+      "8",
+      "40",
+      "kilos"
+    ],
+    "ner_tags": [
+      "O",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "en_delete_11",
+    "lang": "en",
+    "text": "remove barbell curl",
+    "intent": "DELETE_EXERCISE",
+    "words": ["remove", "barbell", "curl"],
+    "ner_tags": ["O", "B-EXE", "I-EXE"]
+  },
+  {
+    "id": "de_add_25",
+    "lang": "de",
+    "text": "parallelbarren dips 6 x 5 100 kg",
+    "intent": "ADD_EXERCISE",
+    "words": ["parallelbarren", "dips", "6", "x", "5", "100", "kg"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "es_delete_28",
+    "lang": "es",
+    "text": "quita peso muerto",
+    "intent": "DELETE_EXERCISE",
+    "words": ["quita", "peso", "muerto"],
+    "ner_tags": ["O", "B-EXE", "I-EXE"]
+  },
+  {
+    "id": "es_add_73",
+    "lang": "es",
+    "text": "remo con barra 5 x 12 135 kilogramos",
+    "intent": "ADD_EXERCISE",
+    "words": ["remo", "con", "barra", "5", "x", "12", "135", "kilogramos"],
+    "ner_tags": [
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "en_add_212",
+    "lang": "en",
+    "text": "calf raise 5 x 12 80 kg",
+    "intent": "ADD_EXERCISE",
+    "words": ["calf", "raise", "5", "x", "12", "80", "kg"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_add_136",
+    "lang": "it",
+    "text": "leg press 6 serie da 15 130 chili",
+    "intent": "ADD_EXERCISE",
+    "words": ["leg", "press", "6", "serie", "da", "15", "130", "chili"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_add_271",
+    "lang": "de",
+    "text": "langhantelrudern 2 sätze zehn wiederholungen",
+    "intent": "ADD_EXERCISE",
+    "words": ["langhantelrudern", "2", "sätze", "zehn", "wiederholungen"],
+    "ner_tags": ["B-EXE", "B-SET", "O", "B-REP", "O"]
+  },
+  {
+    "id": "en_add_189",
+    "lang": "en",
+    "text": "do hammer curl 3 sets of 15 42.5 kg",
+    "intent": "ADD_EXERCISE",
+    "words": ["do", "hammer", "curl", "3", "sets", "of", "15", "42.5", "kg"],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "it_log_65",
+    "lang": "it",
+    "text": "fatto pec deck dodici ripetizioni 20 chilogrammi",
+    "intent": "LOG_SET",
+    "words": [
+      "fatto",
+      "pec",
+      "deck",
+      "dodici",
+      "ripetizioni",
+      "20",
+      "chilogrammi"
+    ],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "es_add_76",
+    "lang": "es",
+    "text": "sentadilla 4 x doce 90 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": ["sentadilla", "4", "x", "doce", "90", "kilos"],
+    "ner_tags": ["B-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_delete_45",
+    "lang": "de",
+    "text": "entferne russian twist",
+    "intent": "DELETE_EXERCISE",
+    "words": ["entferne", "russian", "twist"],
+    "ner_tags": ["O", "B-EXE", "I-EXE"]
+  },
+  {
+    "id": "en_update_17",
+    "lang": "en",
+    "text": "correct pec deck eight reps 40 kilograms",
+    "intent": "UPDATE_SET",
+    "words": ["correct", "pec", "deck", "eight", "reps", "40", "kilograms"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "fr_log_implicit_39",
+    "lang": "fr",
+    "text": "terminé 10 répétitions",
+    "intent": "LOG_SET",
+    "words": ["terminé", "10", "répétitions"],
+    "ner_tags": ["O", "B-REP", "O"]
+  },
+  {
+    "id": "en_log_21",
+    "lang": "en",
+    "text": "just did planks 5 times 55 pounds",
+    "intent": "LOG_SET",
+    "words": ["just", "did", "planks", "5", "times", "55", "pounds"],
+    "ner_tags": ["O", "O", "B-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_add_295",
+    "lang": "it",
+    "text": "metti panca piana 20 ripetizioni per 3 serie",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "metti",
+      "panca",
+      "piana",
+      "20",
+      "ripetizioni",
+      "per",
+      "3",
+      "serie"
+    ],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O", "O", "B-SET", "O"]
+  },
+  {
+    "id": "fr_delete_38",
+    "lang": "fr",
+    "text": "retire relevés de jambes",
+    "intent": "DELETE_EXERCISE",
+    "words": ["retire", "relevés", "de", "jambes"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "I-EXE"]
+  },
+  {
+    "id": "es_log_implicit_37",
+    "lang": "es",
+    "text": "listo 8 repeticiones",
+    "intent": "LOG_SET",
+    "words": ["listo", "8", "repeticiones"],
+    "ner_tags": ["O", "B-REP", "O"]
+  },
+  {
+    "id": "fr_add_88",
+    "lang": "fr",
+    "text": "insère tirage corde triceps 6 x 10",
+    "intent": "ADD_EXERCISE",
+    "words": ["insère", "tirage", "corde", "triceps", "6", "x", "10"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "I-EXE", "B-SET", "O", "B-REP"]
+  },
+  {
+    "id": "de_add_122",
+    "lang": "de",
+    "text": "mach crunches vier sätze 8 reps 130 kilo",
+    "intent": "ADD_EXERCISE",
+    "words": ["mach", "crunches", "vier", "sätze", "8", "reps", "130", "kilo"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "fr_unk_11",
+    "lang": "fr",
+    "text": "bonjour",
+    "intent": "UNKNOWN",
+    "words": ["bonjour"],
+    "ner_tags": ["O"]
+  },
+  {
+    "id": "it_add_186",
+    "lang": "it",
+    "text": "cable row 10 rep 3 serie",
+    "intent": "ADD_EXERCISE",
+    "words": ["cable", "row", "10", "rep", "3", "serie"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-REP", "O", "B-SET", "O"]
+  },
+  {
+    "id": "de_add_313",
+    "lang": "de",
+    "text": "lat maschine 4 sätze 4 wiederholungen 90 kilo",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "lat",
+      "maschine",
+      "4",
+      "sätze",
+      "4",
+      "wiederholungen",
+      "90",
+      "kilo"
+    ],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "es_add_125",
+    "lang": "es",
+    "text": "quiero hacer leg raise 6 series 6 40 kilogramos",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "quiero",
+      "hacer",
+      "leg",
+      "raise",
+      "6",
+      "series",
+      "6",
+      "40",
+      "kilogramos"
+    ],
+    "ner_tags": [
+      "O",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "en_log_74",
+    "lang": "en",
+    "text": "cable pushdown done 5 reps",
+    "intent": "LOG_SET",
+    "words": ["cable", "pushdown", "done", "5", "reps"],
+    "ner_tags": ["B-EXE", "I-EXE", "O", "B-REP", "O"]
+  },
+  {
+    "id": "fr_add_299",
+    "lang": "fr",
+    "text": "insère développé couché 2 x 8 40 kilogrammes",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "insère",
+      "développé",
+      "couché",
+      "2",
+      "x",
+      "8",
+      "40",
+      "kilogrammes"
+    ],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_update_51",
+    "lang": "it",
+    "text": "cambia curl quattro reps",
+    "intent": "UPDATE_SET",
+    "words": ["cambia", "curl", "quattro", "reps"],
+    "ner_tags": ["O", "B-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "en_delete_5",
+    "lang": "en",
+    "text": "take out incline bench press",
+    "intent": "DELETE_EXERCISE",
+    "words": ["take out", "incline", "bench", "press"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "I-EXE"]
+  },
+  {
+    "id": "it_multi_75",
+    "lang": "it",
+    "text": "aggiungi cable crunch 3 x 8 poi alzate sui polpacci due x 20 , alzate sui polpacci 3 x 8",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "aggiungi",
+      "cable",
+      "crunch",
+      "3",
+      "x",
+      "8",
+      "poi",
+      "alzate",
+      "sui",
+      "polpacci",
+      "due",
+      "x",
+      "20",
+      ",",
+      "alzate",
+      "sui",
+      "polpacci",
+      "3",
+      "x",
+      "8"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "es_add_92",
+    "lang": "es",
+    "text": "remo con barra 2 series quince repeticiones 102.5 libras",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "remo",
+      "con",
+      "barra",
+      "2",
+      "series",
+      "quince",
+      "repeticiones",
+      "102.5",
+      "libras"
+    ],
+    "ner_tags": [
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "es_update_14",
+    "lang": "es",
+    "text": "cambia aperturas pecho 20 reps 60 kilogramos",
+    "intent": "UPDATE_SET",
+    "words": ["cambia", "aperturas", "pecho", "20", "reps", "60", "kilogramos"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_add_68",
+    "lang": "it",
+    "text": "voglio fare dip cinque serie 20 reps 120 chili",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "voglio",
+      "fare",
+      "dip",
+      "cinque",
+      "serie",
+      "20",
+      "reps",
+      "120",
+      "chili"
+    ],
+    "ner_tags": [
+      "O",
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "es_add_47",
+    "lang": "es",
+    "text": "pushdown tríceps 2 x 4 30 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": ["pushdown", "tríceps", "2", "x", "4", "30", "kilos"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_add_179",
+    "lang": "de",
+    "text": "mach face pull zwei sätze 6 reps 90 kilo",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "mach",
+      "face",
+      "pull",
+      "zwei",
+      "sätze",
+      "6",
+      "reps",
+      "90",
+      "kilo"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "it_add_76",
+    "lang": "it",
+    "text": "lat pulldown 5 rep 5 serie 80 kg",
+    "intent": "ADD_EXERCISE",
+    "words": ["lat", "pulldown", "5", "rep", "5", "serie", "80", "kg"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-REP", "O", "B-SET", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "es_add_62",
+    "lang": "es",
+    "text": "agrega press inclinado 2 series de 15 reps 20 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "agrega",
+      "press",
+      "inclinado",
+      "2",
+      "series",
+      "de",
+      "15",
+      "reps",
+      "20",
+      "kilos"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "en_log_implicit_8",
+    "lang": "en",
+    "text": "got four",
+    "intent": "LOG_SET",
+    "words": ["got", "four"],
+    "ner_tags": ["O", "B-REP"]
+  },
+  {
+    "id": "it_update_47",
+    "lang": "it",
+    "text": "modifica panca piana 4 reps",
+    "intent": "UPDATE_SET",
+    "words": ["modifica", "panca", "piana", "4", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "it_log_21",
+    "lang": "it",
+    "text": "ho fatto rematore 6 rep",
+    "intent": "LOG_SET",
+    "words": ["ho", "fatto", "rematore", "6", "rep"],
+    "ner_tags": ["O", "O", "B-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "de_update_70",
+    "lang": "de",
+    "text": "ändere lat maschine 15 reps",
+    "intent": "UPDATE_SET",
+    "words": ["ändere", "lat", "maschine", "15", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "fr_update_31",
+    "lang": "fr",
+    "text": "mets à jour leg extension 10 reps",
+    "intent": "UPDATE_SET",
+    "words": ["mets à jour", "leg", "extension", "10", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "es_add_227",
+    "lang": "es",
+    "text": "quiero hacer polea alta 3 series 12 20 kilogramos",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "quiero",
+      "hacer",
+      "polea",
+      "alta",
+      "3",
+      "series",
+      "12",
+      "20",
+      "kilogramos"
+    ],
+    "ner_tags": [
+      "O",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "fr_add_209",
+    "lang": "fr",
+    "text": "hammer curl 5 séries 5 répétitions 50 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "hammer",
+      "curl",
+      "5",
+      "séries",
+      "5",
+      "répétitions",
+      "50",
+      "kilos"
+    ],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_add_203",
+    "lang": "de",
+    "text": "füge hinzu pull ups zwei sätze 6 wiederholungen 60 pfund",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "füge",
+      "hinzu",
+      "pull",
+      "ups",
+      "zwei",
+      "sätze",
+      "6",
+      "wiederholungen",
+      "60",
+      "pfund"
+    ],
+    "ner_tags": [
+      "O",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "fr_add_197",
+    "lang": "fr",
+    "text": "note tirage barre 3 séries de huit répétitions 80 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "note",
+      "tirage",
+      "barre",
+      "3",
+      "séries",
+      "de",
+      "huit",
+      "répétitions",
+      "80",
+      "kilos"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "fr_add_100",
+    "lang": "fr",
+    "text": "leg raise 3 séries 10 répétitions",
+    "intent": "ADD_EXERCISE",
+    "words": ["leg", "raise", "3", "séries", "10", "répétitions"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "O"]
+  },
+  {
+    "id": "es_log_implicit_45",
+    "lang": "es",
+    "text": "listo 4 repeticiones",
+    "intent": "LOG_SET",
+    "words": ["listo", "4", "repeticiones"],
+    "ner_tags": ["O", "B-REP", "O"]
+  },
+  {
+    "id": "it_delete_46",
+    "lang": "it",
+    "text": "rimuovi russian twist",
+    "intent": "DELETE_EXERCISE",
+    "words": ["rimuovi", "russian", "twist"],
+    "ner_tags": ["O", "B-EXE", "I-EXE"]
+  },
+  {
+    "id": "de_add_238",
+    "lang": "de",
+    "text": "trainiere beinpresse 3 sätze à 8 wdh 75 pfund",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "trainiere",
+      "beinpresse",
+      "3",
+      "sätze",
+      "à",
+      "8",
+      "wdh",
+      "75",
+      "pfund"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "it_delete_2",
+    "lang": "it",
+    "text": "cancella bicep curl",
+    "intent": "DELETE_EXERCISE",
+    "words": ["cancella", "bicep", "curl"],
+    "ner_tags": ["O", "B-EXE", "I-EXE"]
+  },
+  {
+    "id": "en_log_102",
+    "lang": "en",
+    "text": "done push ups 5 reps",
+    "intent": "LOG_SET",
+    "words": ["done", "push", "ups", "5", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "es_add_294",
+    "lang": "es",
+    "text": "agrega aperturas pecho tres series de 10 reps 20 libras",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "agrega",
+      "aperturas",
+      "pecho",
+      "tres",
+      "series",
+      "de",
+      "10",
+      "reps",
+      "20",
+      "libras"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "en_add_72",
+    "lang": "en",
+    "text": "back squat 5 sets 15 reps",
+    "intent": "ADD_EXERCISE",
+    "words": ["back", "squat", "5", "sets", "15", "reps"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "O"]
+  },
+  {
+    "id": "it_add_81",
+    "lang": "it",
+    "text": "alzate sui polpacci 6 set x dieci 90 chili",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "alzate",
+      "sui",
+      "polpacci",
+      "6",
+      "set",
+      "x",
+      "dieci",
+      "90",
+      "chili"
+    ],
+    "ner_tags": [
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "en_multi_50",
+    "lang": "en",
+    "text": "add deadlift 2 x 20 then hanging leg raises 3 x 12 then rdl 6 x 8",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "add",
+      "deadlift",
+      "2",
+      "x",
+      "20",
+      "then",
+      "hanging",
+      "leg",
+      "raises",
+      "3",
+      "x",
+      "12",
+      "then",
+      "rdl",
+      "6",
+      "x",
+      "8"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "it_log_implicit_9",
+    "lang": "it",
+    "text": "ok 10",
+    "intent": "LOG_SET",
+    "words": ["ok", "10"],
+    "ner_tags": ["O", "B-REP"]
+  },
+  {
+    "id": "de_log_implicit_13",
+    "lang": "de",
+    "text": "gemacht 5 wiederholungen 130 kg",
+    "intent": "LOG_SET",
+    "words": ["gemacht", "5", "wiederholungen", "130", "kg"],
+    "ner_tags": ["O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_add_313",
+    "lang": "it",
+    "text": "aggiungi lat machine 2 x 12 50 chilogrammi",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "aggiungi",
+      "lat",
+      "machine",
+      "2",
+      "x",
+      "12",
+      "50",
+      "chilogrammi"
+    ],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "es_add_107",
+    "lang": "es",
+    "text": "push ups 6 x 12 70 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": ["push", "ups", "6", "x", "12", "70", "kilos"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "es_update_43",
+    "lang": "es",
+    "text": "corrige curl mancuernas 6 reps 90 kilogramos",
+    "intent": "UPDATE_SET",
+    "words": ["corrige", "curl", "mancuernas", "6", "reps", "90", "kilogramos"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_add_0",
+    "lang": "it",
+    "text": "aggiungi curl con bilanciere 2 x dieci 40 kg",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "aggiungi",
+      "curl",
+      "con",
+      "bilanciere",
+      "2",
+      "x",
+      "dieci",
+      "40",
+      "kg"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "es_add_54",
+    "lang": "es",
+    "text": "pon elevación de piernas 5 series de 10 repeticiones 120 kg",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "pon",
+      "elevación",
+      "de",
+      "piernas",
+      "5",
+      "series",
+      "de",
+      "10",
+      "repeticiones",
+      "120",
+      "kg"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "it_log_10",
+    "lang": "it",
+    "text": "completato panca inclinata 8 reps 60 kg",
+    "intent": "LOG_SET",
+    "words": ["completato", "panca", "inclinata", "8", "reps", "60", "kg"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_multi_35",
+    "lang": "en",
+    "text": "add rdl 3 x four and walking lunges 4 x fifteen",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "add",
+      "rdl",
+      "3",
+      "x",
+      "four",
+      "and",
+      "walking",
+      "lunges",
+      "4",
+      "x",
+      "fifteen"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "es_add_188",
+    "lang": "es",
+    "text": "quiero hacer curl mancuernas 2 series 20",
+    "intent": "ADD_EXERCISE",
+    "words": ["quiero", "hacer", "curl", "mancuernas", "2", "series", "20"],
+    "ner_tags": ["O", "O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP"]
+  },
+  {
+    "id": "es_delete_5",
+    "lang": "es",
+    "text": "borra abdominales",
+    "intent": "DELETE_EXERCISE",
+    "words": ["borra", "abdominales"],
+    "ner_tags": ["O", "B-EXE"]
+  },
+  {
+    "id": "it_multi_6",
+    "lang": "it",
+    "text": "aggiungi russian twist 5 x 10 poi face pull 5 x 15",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "aggiungi",
+      "russian",
+      "twist",
+      "5",
+      "x",
+      "10",
+      "poi",
+      "face",
+      "pull",
+      "5",
+      "x",
+      "15"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "es_add_99",
+    "lang": "es",
+    "text": "insertar lunges 5 x veinte 80 libras",
+    "intent": "ADD_EXERCISE",
+    "words": ["insertar", "lunges", "5", "x", "veinte", "80", "libras"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_add_100",
+    "lang": "en",
+    "text": "add hamstring curl 3 sets of four reps",
+    "intent": "ADD_EXERCISE",
+    "words": ["add", "hamstring", "curl", "3", "sets", "of", "four", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "O", "B-REP", "O"]
+  },
+  {
+    "id": "it_log_75",
+    "lang": "it",
+    "text": "fatto 8 curl femorali",
+    "intent": "LOG_SET",
+    "words": ["fatto", "8", "curl", "femorali"],
+    "ner_tags": ["O", "B-REP", "B-EXE", "I-EXE"]
+  },
+  {
+    "id": "de_add_107",
+    "lang": "de",
+    "text": "beinpresse 6 sätze 20 wiederholungen 50 pfund",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "beinpresse",
+      "6",
+      "sätze",
+      "20",
+      "wiederholungen",
+      "50",
+      "pfund"
+    ],
+    "ner_tags": ["B-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_log_implicit_34",
+    "lang": "en",
+    "text": "got 10",
+    "intent": "LOG_SET",
+    "words": ["got", "10"],
+    "ner_tags": ["O", "B-REP"]
+  },
+  {
+    "id": "fr_add_240",
+    "lang": "fr",
+    "text": "calf raise 6 x 6",
+    "intent": "ADD_EXERCISE",
+    "words": ["calf", "raise", "6", "x", "6"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP"]
+  },
+  {
+    "id": "it_add_107",
+    "lang": "it",
+    "text": "face pull 3 serie da 12",
+    "intent": "ADD_EXERCISE",
+    "words": ["face", "pull", "3", "serie", "da", "12"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "O", "B-REP"]
+  },
+  {
+    "id": "en_add_10",
+    "lang": "en",
+    "text": "leg extension 2 sets 8 reps 110 lbs",
+    "intent": "ADD_EXERCISE",
+    "words": ["leg", "extension", "2", "sets", "8", "reps", "110", "lbs"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_add_16",
+    "lang": "en",
+    "text": "seated cable row 3 sets 6 reps 50 pounds",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "seated",
+      "cable",
+      "row",
+      "3",
+      "sets",
+      "6",
+      "reps",
+      "50",
+      "pounds"
+    ],
+    "ner_tags": [
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "it_log_43",
+    "lang": "it",
+    "text": "dumbbell curl fatto 10 volte",
+    "intent": "LOG_SET",
+    "words": ["dumbbell", "curl", "fatto", "10", "volte"],
+    "ner_tags": ["B-EXE", "I-EXE", "O", "B-REP", "O"]
+  },
+  {
+    "id": "de_delete_27",
+    "lang": "de",
+    "text": "entferne militärpresse",
+    "intent": "DELETE_EXERCISE",
+    "words": ["entferne", "militärpresse"],
+    "ner_tags": ["O", "B-EXE"]
+  },
+  {
+    "id": "de_add_108",
+    "lang": "de",
+    "text": "füge hinzu planke zwei sätze 20 wiederholungen 80 kg",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "füge",
+      "hinzu",
+      "planke",
+      "zwei",
+      "sätze",
+      "20",
+      "wiederholungen",
+      "80",
+      "kg"
+    ],
+    "ner_tags": [
+      "O",
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "en_add_28",
+    "lang": "en",
+    "text": "insert rdl five sets 6 reps 90 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": ["insert", "rdl", "five", "sets", "6", "reps", "90", "kilos"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_add_210",
+    "lang": "it",
+    "text": "stacco da terra 10 rep 4 serie 110 chili",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "stacco",
+      "da",
+      "terra",
+      "10",
+      "rep",
+      "4",
+      "serie",
+      "110",
+      "chili"
+    ],
+    "ner_tags": [
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-REP",
+      "O",
+      "B-SET",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "en_update_3",
+    "lang": "en",
+    "text": "correct leg press four reps 90 kilograms",
+    "intent": "UPDATE_SET",
+    "words": ["correct", "leg", "press", "four", "reps", "90", "kilograms"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_log_14",
+    "lang": "it",
+    "text": "leg press fatto 12 volte",
+    "intent": "LOG_SET",
+    "words": ["leg", "press", "fatto", "12", "volte"],
+    "ner_tags": ["B-EXE", "I-EXE", "O", "B-REP", "O"]
+  },
+  {
+    "id": "it_add_91",
+    "lang": "it",
+    "text": "voglio fare alzate frontali 5 serie 6 reps 125 kg",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "voglio",
+      "fare",
+      "alzate",
+      "frontali",
+      "5",
+      "serie",
+      "6",
+      "reps",
+      "125",
+      "kg"
+    ],
+    "ner_tags": [
+      "O",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "es_update_1",
+    "lang": "es",
+    "text": "actualiza giro ruso 20 reps",
+    "intent": "UPDATE_SET",
+    "words": ["actualiza", "giro", "ruso", "20", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "it_log_114",
+    "lang": "it",
+    "text": "fatto deadlift 20 ripetizioni",
+    "intent": "LOG_SET",
+    "words": ["fatto", "deadlift", "20", "ripetizioni"],
+    "ner_tags": ["O", "B-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "en_add_116",
+    "lang": "en",
+    "text": "add planks three x eight 50 kilograms",
+    "intent": "ADD_EXERCISE",
+    "words": ["add", "planks", "three", "x", "eight", "50", "kilograms"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_multi_73",
+    "lang": "it",
+    "text": "aggiungi addominali 6 x quattro , leg press 2 x dodici",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "aggiungi",
+      "addominali",
+      "6",
+      "x",
+      "quattro",
+      ",",
+      "leg",
+      "press",
+      "2",
+      "x",
+      "dodici"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "it_add_67",
+    "lang": "it",
+    "text": "bicep curl quattro rep due serie 90 chilogrammi",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "bicep",
+      "curl",
+      "quattro",
+      "rep",
+      "due",
+      "serie",
+      "90",
+      "chilogrammi"
+    ],
+    "ner_tags": ["B-EXE", "I-EXE", "B-REP", "O", "B-SET", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_log_111",
+    "lang": "it",
+    "text": "ok fatto estensioni otto reps",
+    "intent": "LOG_SET",
+    "words": ["ok", "fatto", "estensioni", "otto", "reps"],
+    "ner_tags": ["O", "O", "B-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "de_unk_42",
+    "lang": "de",
+    "text": "pause",
+    "intent": "UNKNOWN",
+    "words": ["pause"],
+    "ner_tags": ["O"]
+  },
+  {
+    "id": "it_update_63",
+    "lang": "it",
+    "text": "correggi curl femorali 15 reps",
+    "intent": "UPDATE_SET",
+    "words": ["correggi", "curl", "femorali", "15", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "fr_unk_5",
+    "lang": "fr",
+    "text": "augmente la musique",
+    "intent": "UNKNOWN",
+    "words": ["augmente", "la", "musique"],
+    "ner_tags": ["O", "O", "O"]
+  },
+  {
+    "id": "fr_log_implicit_47",
+    "lang": "fr",
+    "text": "terminé 5 répétitions",
+    "intent": "LOG_SET",
+    "words": ["terminé", "5", "répétitions"],
+    "ner_tags": ["O", "B-REP", "O"]
+  },
+  {
+    "id": "en_update_22",
+    "lang": "en",
+    "text": "edit rows 6 reps 80 kilos",
+    "intent": "UPDATE_SET",
+    "words": ["edit", "rows", "6", "reps", "80", "kilos"],
+    "ner_tags": ["O", "B-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_log_83",
+    "lang": "it",
+    "text": "affondi fatto 10 volte",
+    "intent": "LOG_SET",
+    "words": ["affondi", "fatto", "10", "volte"],
+    "ner_tags": ["B-EXE", "O", "B-REP", "O"]
+  },
+  {
+    "id": "it_log_0",
+    "lang": "it",
+    "text": "fatto addominali 15 ripetizioni 20 kilo",
+    "intent": "LOG_SET",
+    "words": ["fatto", "addominali", "15", "ripetizioni", "20", "kilo"],
+    "ner_tags": ["O", "B-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_log_16",
+    "lang": "it",
+    "text": "ok fatto leg curl dieci reps 40 chilogrammi",
+    "intent": "LOG_SET",
+    "words": [
+      "ok",
+      "fatto",
+      "leg",
+      "curl",
+      "dieci",
+      "reps",
+      "40",
+      "chilogrammi"
+    ],
+    "ner_tags": ["O", "O", "B-EXE", "I-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_log_implicit_4",
+    "lang": "en",
+    "text": "finished fifteen repetitions 22.5 kilos",
+    "intent": "LOG_SET",
+    "words": ["finished", "fifteen", "repetitions", "22.5", "kilos"],
+    "ner_tags": ["O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "es_add_265",
+    "lang": "es",
+    "text": "quiero hacer jalón al pecho dos series 20 50 kilogramos",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "quiero",
+      "hacer",
+      "jalón",
+      "al",
+      "pecho",
+      "dos",
+      "series",
+      "20",
+      "50",
+      "kilogramos"
+    ],
+    "ner_tags": [
+      "O",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "it_delete_21",
+    "lang": "it",
+    "text": "cancella pushdown ai cavi",
+    "intent": "DELETE_EXERCISE",
+    "words": ["cancella", "pushdown", "ai", "cavi"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "I-EXE"]
+  },
+  {
+    "id": "it_multi_46",
+    "lang": "it",
+    "text": "aggiungi lat machine 4 x 20 e rdl 4 x 12 , lateral raise 5 x 6",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "aggiungi",
+      "lat",
+      "machine",
+      "4",
+      "x",
+      "20",
+      "e",
+      "rdl",
+      "4",
+      "x",
+      "12",
+      ",",
+      "lateral",
+      "raise",
+      "5",
+      "x",
+      "6"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "es_update_12",
+    "lang": "es",
+    "text": "corrige press inclinado 5 reps",
+    "intent": "UPDATE_SET",
+    "words": ["corrige", "press", "inclinado", "5", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "fr_update_30",
+    "lang": "fr",
+    "text": "mets à jour relevés de jambes 8 reps",
+    "intent": "UPDATE_SET",
+    "words": ["mets à jour", "relevés", "de", "jambes", "8", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "de_add_206",
+    "lang": "de",
+    "text": "langhantelcurl 5 x 5",
+    "intent": "ADD_EXERCISE",
+    "words": ["langhantelcurl", "5", "x", "5"],
+    "ner_tags": ["B-EXE", "B-SET", "O", "B-REP"]
+  },
+  {
+    "id": "de_add_165",
+    "lang": "de",
+    "text": "trainiere leg curl zwei sätze à 10 wdh 50 pfund",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "trainiere",
+      "leg",
+      "curl",
+      "zwei",
+      "sätze",
+      "à",
+      "10",
+      "wdh",
+      "50",
+      "pfund"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "fr_add_229",
+    "lang": "fr",
+    "text": "cable crunch 6 séries 4 répétitions 110 livres",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "cable",
+      "crunch",
+      "6",
+      "séries",
+      "4",
+      "répétitions",
+      "110",
+      "livres"
+    ],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_log_105",
+    "lang": "it",
+    "text": "completato cable crunch 8 reps",
+    "intent": "LOG_SET",
+    "words": ["completato", "cable", "crunch", "8", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "es_delete_27",
+    "lang": "es",
+    "text": "elimina rdl",
+    "intent": "DELETE_EXERCISE",
+    "words": ["elimina", "rdl"],
+    "ner_tags": ["O", "B-EXE"]
+  },
+  {
+    "id": "de_log_implicit_44",
+    "lang": "de",
+    "text": "gemacht 4 wiederholungen",
+    "intent": "LOG_SET",
+    "words": ["gemacht", "4", "wiederholungen"],
+    "ner_tags": ["O", "B-REP", "O"]
+  },
+  {
+    "id": "en_add_238",
+    "lang": "en",
+    "text": "log planks 6 times 15 90 pounds",
+    "intent": "ADD_EXERCISE",
+    "words": ["log", "planks", "6", "times", "15", "90", "pounds"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_unk_6",
+    "lang": "it",
+    "text": "non capisco",
+    "intent": "UNKNOWN",
+    "words": ["non", "capisco"],
+    "ner_tags": ["O", "O"]
+  },
+  {
+    "id": "es_add_113",
+    "lang": "es",
+    "text": "squat con barra 2 series 8 repeticiones 105 libras",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "squat",
+      "con",
+      "barra",
+      "2",
+      "series",
+      "8",
+      "repeticiones",
+      "105",
+      "libras"
+    ],
+    "ner_tags": [
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "en_update_21",
+    "lang": "en",
+    "text": "change dips 4 reps",
+    "intent": "UPDATE_SET",
+    "words": ["change", "dips", "4", "reps"],
+    "ner_tags": ["O", "B-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "en_update_34",
+    "lang": "en",
+    "text": "correct frontal raises 4 reps",
+    "intent": "UPDATE_SET",
+    "words": ["correct", "frontal", "raises", "4", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "it_add_154",
+    "lang": "it",
+    "text": "metti leg raise dieci ripetizioni per 4 serie 100 kg",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "metti",
+      "leg",
+      "raise",
+      "dieci",
+      "ripetizioni",
+      "per",
+      "4",
+      "serie",
+      "100",
+      "kg"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-REP",
+      "O",
+      "O",
+      "B-SET",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "it_add_18",
+    "lang": "it",
+    "text": "aggiungi stacco da terra 5 serie da 8 ripetizioni 120 kilo",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "aggiungi",
+      "stacco",
+      "da",
+      "terra",
+      "5",
+      "serie",
+      "da",
+      "8",
+      "ripetizioni",
+      "120",
+      "kilo"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "fr_add_184",
+    "lang": "fr",
+    "text": "ajoute tirage vertical deux séries de 5 reps 30 livres",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "ajoute",
+      "tirage",
+      "vertical",
+      "deux",
+      "séries",
+      "de",
+      "5",
+      "reps",
+      "30",
+      "livres"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "es_unk_16",
+    "lang": "es",
+    "text": "pausa",
+    "intent": "UNKNOWN",
+    "words": ["pausa"],
+    "ner_tags": ["O"]
+  },
+  {
+    "id": "de_log_implicit_40",
+    "lang": "de",
+    "text": "fertig sechs reps 50 kilogramm",
+    "intent": "LOG_SET",
+    "words": ["fertig", "sechs", "reps", "50", "kilogramm"],
+    "ner_tags": ["O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_add_190",
+    "lang": "en",
+    "text": "i want to do cable crunches three sets 8 reps",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "i",
+      "want",
+      "to",
+      "do",
+      "cable",
+      "crunches",
+      "three",
+      "sets",
+      "8",
+      "reps"
+    ],
+    "ner_tags": [
+      "O",
+      "O",
+      "O",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O"
+    ]
+  },
+  {
+    "id": "it_log_115",
+    "lang": "it",
+    "text": "fatto 5 trazioni",
+    "intent": "LOG_SET",
+    "words": ["fatto", "5", "trazioni"],
+    "ner_tags": ["O", "B-REP", "B-EXE"]
+  },
+  {
+    "id": "de_add_99",
+    "lang": "de",
+    "text": "hinzufügen sitzrudern 5 x 5",
+    "intent": "ADD_EXERCISE",
+    "words": ["hinzufügen", "sitzrudern", "5", "x", "5"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP"]
+  },
+  {
+    "id": "it_add_183",
+    "lang": "it",
+    "text": "trazioni alla sbarra 3 set x quattro 132.5 kilo",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "trazioni",
+      "alla",
+      "sbarra",
+      "3",
+      "set",
+      "x",
+      "quattro",
+      "132.5",
+      "kilo"
+    ],
+    "ner_tags": [
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "es_add_64",
+    "lang": "es",
+    "text": "quiero hacer face pull 2 series 20",
+    "intent": "ADD_EXERCISE",
+    "words": ["quiero", "hacer", "face", "pull", "2", "series", "20"],
+    "ner_tags": ["O", "O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP"]
+  },
+  {
+    "id": "it_multi_58",
+    "lang": "it",
+    "text": "aggiungi dip cinque x 15 poi dip tre x 4",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "aggiungi",
+      "dip",
+      "cinque",
+      "x",
+      "15",
+      "poi",
+      "dip",
+      "tre",
+      "x",
+      "4"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "fr_unk_30",
+    "lang": "fr",
+    "text": "minuterie cinq minutes",
+    "intent": "UNKNOWN",
+    "words": ["minuterie", "cinq", "minutes"],
+    "ner_tags": ["O", "O", "O"]
+  },
+  {
+    "id": "en_add_73",
+    "lang": "en",
+    "text": "french press 6 x 10",
+    "intent": "ADD_EXERCISE",
+    "words": ["french", "press", "6", "x", "10"],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP"]
+  },
+  {
+    "id": "it_unk_21",
+    "lang": "it",
+    "text": "quanto manca alla fine",
+    "intent": "UNKNOWN",
+    "words": ["quanto", "manca", "alla", "fine"],
+    "ner_tags": ["O", "O", "O", "O"]
+  },
+  {
+    "id": "de_unk_21",
+    "lang": "de",
+    "text": "wie viele kalorien",
+    "intent": "UNKNOWN",
+    "words": ["wie", "viele", "kalorien"],
+    "ner_tags": ["O", "O", "O"]
+  },
+  {
+    "id": "fr_add_218",
+    "lang": "fr",
+    "text": "note curl avec haltères 5 séries de quatre répétitions",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "note",
+      "curl",
+      "avec",
+      "haltères",
+      "5",
+      "séries",
+      "de",
+      "quatre",
+      "répétitions"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O"
+    ]
+  },
+  {
+    "id": "es_add_58",
+    "lang": "es",
+    "text": "pon jalón al pecho 2 series de 8 repeticiones 70 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "pon",
+      "jalón",
+      "al",
+      "pecho",
+      "2",
+      "series",
+      "de",
+      "8",
+      "repeticiones",
+      "70",
+      "kilos"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "de_add_200",
+    "lang": "de",
+    "text": "klimmzüge drei x 5 32.5 kilogramm",
+    "intent": "ADD_EXERCISE",
+    "words": ["klimmzüge", "drei", "x", "5", "32.5", "kilogramm"],
+    "ner_tags": ["B-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_multi_48",
+    "lang": "en",
+    "text": "add hammer curl 3 x 6 then pushups 5 x 8 , planks four x 6",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "add",
+      "hammer",
+      "curl",
+      "3",
+      "x",
+      "6",
+      "then",
+      "pushups",
+      "5",
+      "x",
+      "8",
+      ",",
+      "planks",
+      "four",
+      "x",
+      "6"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "fr_update_8",
+    "lang": "fr",
+    "text": "change soulevé de terre roumain 8 reps 40 kilos",
+    "intent": "UPDATE_SET",
+    "words": [
+      "change",
+      "soulevé",
+      "de",
+      "terre",
+      "roumain",
+      "8",
+      "reps",
+      "40",
+      "kilos"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "en_multi_68",
+    "lang": "en",
+    "text": "add pushups 3 x 8 and hammer curls 3 x 8",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "add",
+      "pushups",
+      "3",
+      "x",
+      "8",
+      "and",
+      "hammer",
+      "curls",
+      "3",
+      "x",
+      "8"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "it_update_21",
+    "lang": "it",
+    "text": "aggiorna leg extension 8 reps 100 kilo",
+    "intent": "UPDATE_SET",
+    "words": ["aggiorna", "leg", "extension", "8", "reps", "100", "kilo"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_add_58",
+    "lang": "de",
+    "text": "mach butterfly 4 sätze fünf reps 50 kilo",
+    "intent": "ADD_EXERCISE",
+    "words": ["mach", "butterfly", "4", "sätze", "fünf", "reps", "50", "kilo"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_unk_5",
+    "lang": "it",
+    "text": "musica più alta",
+    "intent": "UNKNOWN",
+    "words": ["musica", "più", "alta"],
+    "ner_tags": ["O", "O", "O"]
+  },
+  {
+    "id": "de_update_36",
+    "lang": "de",
+    "text": "aktualisiere schrägbankdrücken 5 reps",
+    "intent": "UPDATE_SET",
+    "words": ["aktualisiere", "schrägbankdrücken", "5", "reps"],
+    "ner_tags": ["O", "B-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "en_log_54",
+    "lang": "en",
+    "text": "completed barbell squat eight repetitions 50 pounds",
+    "intent": "LOG_SET",
+    "words": [
+      "completed",
+      "barbell",
+      "squat",
+      "eight",
+      "repetitions",
+      "50",
+      "pounds"
+    ],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_add_154",
+    "lang": "de",
+    "text": "füge hinzu dips sechs sätze 6 wiederholungen 20 kilo",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "füge",
+      "hinzu",
+      "dips",
+      "sechs",
+      "sätze",
+      "6",
+      "wiederholungen",
+      "20",
+      "kilo"
+    ],
+    "ner_tags": [
+      "O",
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "de_delete_30",
+    "lang": "de",
+    "text": "lösche ausfallschritte",
+    "intent": "DELETE_EXERCISE",
+    "words": ["lösche", "ausfallschritte"],
+    "ner_tags": ["O", "B-EXE"]
+  },
+  {
+    "id": "es_add_248",
+    "lang": "es",
+    "text": "insertar overhead press dos x 6 100 kilogramos",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "insertar",
+      "overhead",
+      "press",
+      "dos",
+      "x",
+      "6",
+      "100",
+      "kilogramos"
+    ],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "fr_update_75",
+    "lang": "fr",
+    "text": "corrige presse à cuisses 8 reps",
+    "intent": "UPDATE_SET",
+    "words": ["corrige", "presse", "à", "cuisses", "8", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "en_log_implicit_32",
+    "lang": "en",
+    "text": "finished 4 repetitions 52.5 kilograms",
+    "intent": "LOG_SET",
+    "words": ["finished", "4", "repetitions", "52.5", "kilograms"],
+    "ner_tags": ["O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_update_45",
+    "lang": "de",
+    "text": "aktualisiere hammercurl 20 reps",
+    "intent": "UPDATE_SET",
+    "words": ["aktualisiere", "hammercurl", "20", "reps"],
+    "ner_tags": ["O", "B-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "es_log_implicit_31",
+    "lang": "es",
+    "text": "hecho 6 reps 30 kg",
+    "intent": "LOG_SET",
+    "words": ["hecho", "6", "reps", "30", "kg"],
+    "ner_tags": ["O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "fr_add_28",
+    "lang": "fr",
+    "text": "note curl haltères 2 séries de 6 répétitions 50 livres",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "note",
+      "curl",
+      "haltères",
+      "2",
+      "séries",
+      "de",
+      "6",
+      "répétitions",
+      "50",
+      "livres"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "es_add_142",
+    "lang": "es",
+    "text": "insertar peso muerto rumano 2 x 12 125 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "insertar",
+      "peso",
+      "muerto",
+      "rumano",
+      "2",
+      "x",
+      "12",
+      "125",
+      "kilos"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "it_update_55",
+    "lang": "it",
+    "text": "aggiorna shoulder press 4 reps",
+    "intent": "UPDATE_SET",
+    "words": ["aggiorna", "shoulder", "press", "4", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "it_add_88",
+    "lang": "it",
+    "text": "aggiungi plank 6 x 5 120 chili",
+    "intent": "ADD_EXERCISE",
+    "words": ["aggiungi", "plank", "6", "x", "5", "120", "chili"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "es_add_112",
+    "lang": "es",
+    "text": "agrega calf raise 6 series de 8 reps",
+    "intent": "ADD_EXERCISE",
+    "words": ["agrega", "calf", "raise", "6", "series", "de", "8", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "O", "B-REP", "O"]
+  },
+  {
+    "id": "fr_add_196",
+    "lang": "fr",
+    "text": "ajouter tirage corde triceps 6 x 15 60 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "ajouter",
+      "tirage",
+      "corde",
+      "triceps",
+      "6",
+      "x",
+      "15",
+      "60",
+      "kilos"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "de_add_141",
+    "lang": "de",
+    "text": "trainiere deadlift 4 sätze à 5 wdh",
+    "intent": "ADD_EXERCISE",
+    "words": ["trainiere", "deadlift", "4", "sätze", "à", "5", "wdh"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "O", "B-REP", "O"]
+  },
+  {
+    "id": "it_log_82",
+    "lang": "it",
+    "text": "fatto 20 lat machine",
+    "intent": "LOG_SET",
+    "words": ["fatto", "20", "lat", "machine"],
+    "ner_tags": ["O", "B-REP", "B-EXE", "I-EXE"]
+  },
+  {
+    "id": "it_add_85",
+    "lang": "it",
+    "text": "aggiungi panca inclinata 120 chili 5 serie da quindici",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "aggiungi",
+      "panca",
+      "inclinata",
+      "120",
+      "chili",
+      "5",
+      "serie",
+      "da",
+      "quindici"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-WGT",
+      "B-UNT",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "es_add_127",
+    "lang": "es",
+    "text": "pon rdl 3 series de 6 repeticiones 80 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "pon",
+      "rdl",
+      "3",
+      "series",
+      "de",
+      "6",
+      "repeticiones",
+      "80",
+      "kilos"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "es_add_70",
+    "lang": "es",
+    "text": "insertar push ups 4 x 10 40 libras",
+    "intent": "ADD_EXERCISE",
+    "words": ["insertar", "push", "ups", "4", "x", "10", "40", "libras"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "es_log_implicit_11",
+    "lang": "es",
+    "text": "hecho doce reps",
+    "intent": "LOG_SET",
+    "words": ["hecho", "doce", "reps"],
+    "ner_tags": ["O", "B-REP", "O"]
+  },
+  {
+    "id": "en_add_227",
+    "lang": "en",
+    "text": "log overhead press 5 times 5 125 pounds",
+    "intent": "ADD_EXERCISE",
+    "words": ["log", "overhead", "press", "5", "times", "5", "125", "pounds"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "fr_update_70",
+    "lang": "fr",
+    "text": "mets à jour front raise 15 reps 60 kilogrammes",
+    "intent": "UPDATE_SET",
+    "words": [
+      "mets à jour",
+      "front",
+      "raise",
+      "15",
+      "reps",
+      "60",
+      "kilogrammes"
+    ],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_delete_39",
+    "lang": "de",
+    "text": "streiche face pull",
+    "intent": "DELETE_EXERCISE",
+    "words": ["streiche", "face", "pull"],
+    "ner_tags": ["O", "B-EXE", "I-EXE"]
+  },
+  {
+    "id": "fr_add_83",
+    "lang": "fr",
+    "text": "presse à cuisses 3 x 10",
+    "intent": "ADD_EXERCISE",
+    "words": ["presse", "à", "cuisses", "3", "x", "10"],
+    "ner_tags": ["B-EXE", "I-EXE", "I-EXE", "B-SET", "O", "B-REP"]
+  },
+  {
+    "id": "es_log_implicit_42",
+    "lang": "es",
+    "text": "hecho seis reps 70 libras",
+    "intent": "LOG_SET",
+    "words": ["hecho", "seis", "reps", "70", "libras"],
+    "ner_tags": ["O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_add_60",
+    "lang": "de",
+    "text": "trainiere militärpresse 4 sätze à 20 wdh",
+    "intent": "ADD_EXERCISE",
+    "words": ["trainiere", "militärpresse", "4", "sätze", "à", "20", "wdh"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "O", "B-REP", "O"]
+  },
+  {
+    "id": "de_add_204",
+    "lang": "de",
+    "text": "füge hinzu squat 6 sätze 12 wiederholungen 90 kg",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "füge",
+      "hinzu",
+      "squat",
+      "6",
+      "sätze",
+      "12",
+      "wiederholungen",
+      "90",
+      "kg"
+    ],
+    "ner_tags": [
+      "O",
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "fr_add_79",
+    "lang": "fr",
+    "text": "insère soulevé de terre roumain 3 x 10 82.5 kg",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "insère",
+      "soulevé",
+      "de",
+      "terre",
+      "roumain",
+      "3",
+      "x",
+      "10",
+      "82.5",
+      "kg"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "de_add_219",
+    "lang": "de",
+    "text": "mach brustpresse 3 sätze 8 reps 135 kg",
+    "intent": "ADD_EXERCISE",
+    "words": ["mach", "brustpresse", "3", "sätze", "8", "reps", "135", "kg"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "es_add_202",
+    "lang": "es",
+    "text": "pon jalones 4 series de 15 repeticiones 20 libras",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "pon",
+      "jalones",
+      "4",
+      "series",
+      "de",
+      "15",
+      "repeticiones",
+      "20",
+      "libras"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "it_log_20",
+    "lang": "it",
+    "text": "fatto 4 dips alle parallele",
+    "intent": "LOG_SET",
+    "words": ["fatto", "4", "dips", "alle", "parallele"],
+    "ner_tags": ["O", "B-REP", "B-EXE", "I-EXE", "I-EXE"]
+  },
+  {
+    "id": "it_log_implicit_19",
+    "lang": "it",
+    "text": "fatto 6 reps",
+    "intent": "LOG_SET",
+    "words": ["fatto", "6", "reps"],
+    "ner_tags": ["O", "B-REP", "O"]
+  },
+  {
+    "id": "de_unk_6",
+    "lang": "de",
+    "text": "musik lauter",
+    "intent": "UNKNOWN",
+    "words": ["musik", "lauter"],
+    "ner_tags": ["O", "O"]
+  },
+  {
+    "id": "de_add_82",
+    "lang": "de",
+    "text": "deadlift 5 sätze 15 wiederholungen",
+    "intent": "ADD_EXERCISE",
+    "words": ["deadlift", "5", "sätze", "15", "wiederholungen"],
+    "ner_tags": ["B-EXE", "B-SET", "O", "B-REP", "O"]
+  },
+  {
+    "id": "fr_update_37",
+    "lang": "fr",
+    "text": "modifie tractions 6 reps",
+    "intent": "UPDATE_SET",
+    "words": ["modifie", "tractions", "6", "reps"],
+    "ner_tags": ["O", "B-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "it_log_26",
+    "lang": "it",
+    "text": "ok fatto lunges 6 reps 100 chilogrammi",
+    "intent": "LOG_SET",
+    "words": ["ok", "fatto", "lunges", "6", "reps", "100", "chilogrammi"],
+    "ner_tags": ["O", "O", "B-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "es_add_281",
+    "lang": "es",
+    "text": "añade dominadas dos x ocho 60 libras",
+    "intent": "ADD_EXERCISE",
+    "words": ["añade", "dominadas", "dos", "x", "ocho", "60", "libras"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_log_implicit_47",
+    "lang": "en",
+    "text": "done 4 reps 90 kilos",
+    "intent": "LOG_SET",
+    "words": ["done", "4", "reps", "90", "kilos"],
+    "ner_tags": ["O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_add_99",
+    "lang": "en",
+    "text": "reverse lunges 60 kilos 6 sets of five repetitions",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "reverse",
+      "lunges",
+      "60",
+      "kilos",
+      "6",
+      "sets",
+      "of",
+      "five",
+      "repetitions"
+    ],
+    "ner_tags": [
+      "B-EXE",
+      "I-EXE",
+      "B-WGT",
+      "B-UNT",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O"
+    ]
+  },
+  {
+    "id": "es_add_239",
+    "lang": "es",
+    "text": "pon skull crusher tres series de 10 repeticiones",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "pon",
+      "skull",
+      "crusher",
+      "tres",
+      "series",
+      "de",
+      "10",
+      "repeticiones"
+    ],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "O", "B-REP", "O"]
+  },
+  {
+    "id": "en_log_25",
+    "lang": "en",
+    "text": "done bench press 10 reps",
+    "intent": "LOG_SET",
+    "words": ["done", "bench", "press", "10", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "fr_add_214",
+    "lang": "fr",
+    "text": "tirage barre 3 séries huit répétitions 80 kg",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "tirage",
+      "barre",
+      "3",
+      "séries",
+      "huit",
+      "répétitions",
+      "80",
+      "kg"
+    ],
+    "ner_tags": ["B-EXE", "I-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_add_94",
+    "lang": "de",
+    "text": "mach klimmzüge 3 sätze 8 reps 62.5 pfund",
+    "intent": "ADD_EXERCISE",
+    "words": ["mach", "klimmzüge", "3", "sätze", "8", "reps", "62.5", "pfund"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_add_15",
+    "lang": "de",
+    "text": "mach plank sechs sätze acht reps",
+    "intent": "ADD_EXERCISE",
+    "words": ["mach", "plank", "sechs", "sätze", "acht", "reps"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP", "O"]
+  },
+  {
+    "id": "fr_add_302",
+    "lang": "fr",
+    "text": "je veux faire curl ischio-jambiers 6 séries 6",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "je",
+      "veux",
+      "faire",
+      "curl",
+      "ischio-jambiers",
+      "6",
+      "séries",
+      "6"
+    ],
+    "ner_tags": ["O", "O", "O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP"]
+  },
+  {
+    "id": "fr_update_6",
+    "lang": "fr",
+    "text": "mets à jour planche 6 reps",
+    "intent": "UPDATE_SET",
+    "words": ["mets à jour", "planche", "6", "reps"],
+    "ner_tags": ["O", "B-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "fr_log_implicit_46",
+    "lang": "fr",
+    "text": "fait 6 reps",
+    "intent": "LOG_SET",
+    "words": ["fait", "6", "reps"],
+    "ner_tags": ["O", "B-REP", "O"]
+  },
+  {
+    "id": "en_log_implicit_9",
+    "lang": "en",
+    "text": "finished 10 repetitions",
+    "intent": "LOG_SET",
+    "words": ["finished", "10", "repetitions"],
+    "ner_tags": ["O", "B-REP", "O"]
+  },
+  {
+    "id": "en_delete_2",
+    "lang": "en",
+    "text": "drop push ups",
+    "intent": "DELETE_EXERCISE",
+    "words": ["drop", "push", "ups"],
+    "ner_tags": ["O", "B-EXE", "I-EXE"]
+  },
+  {
+    "id": "de_add_268",
+    "lang": "de",
+    "text": "füge hinzu trizepsdrücken drei sätze 10 wiederholungen 55 pfund",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "füge",
+      "hinzu",
+      "trizepsdrücken",
+      "drei",
+      "sätze",
+      "10",
+      "wiederholungen",
+      "55",
+      "pfund"
+    ],
+    "ner_tags": [
+      "O",
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "fr_add_185",
+    "lang": "fr",
+    "text": "curl avec haltères 3 x vingt 50 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": ["curl", "avec", "haltères", "3", "x", "vingt", "50", "kilos"],
+    "ner_tags": [
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "fr_add_143",
+    "lang": "fr",
+    "text": "je veux faire soulevé de terre roumain 4 séries 15 122.5 kilogrammes",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "je",
+      "veux",
+      "faire",
+      "soulevé",
+      "de",
+      "terre",
+      "roumain",
+      "4",
+      "séries",
+      "15",
+      "122.5",
+      "kilogrammes"
+    ],
+    "ner_tags": [
+      "O",
+      "O",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "it_multi_79",
+    "lang": "it",
+    "text": "aggiungi face pull sei x dodici , romanian deadlift sei x 6",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "aggiungi",
+      "face",
+      "pull",
+      "sei",
+      "x",
+      "dodici",
+      ",",
+      "romanian",
+      "deadlift",
+      "sei",
+      "x",
+      "6"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "de_add_146",
+    "lang": "de",
+    "text": "bankdrücken 2 sätze 6 wiederholungen 100 pfund",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "bankdrücken",
+      "2",
+      "sätze",
+      "6",
+      "wiederholungen",
+      "100",
+      "pfund"
+    ],
+    "ner_tags": ["B-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_unk_8",
+    "lang": "de",
+    "text": "wie spät ist es",
+    "intent": "UNKNOWN",
+    "words": ["wie", "spät", "ist", "es"],
+    "ner_tags": ["O", "O", "O", "O"]
+  },
+  {
+    "id": "it_log_implicit_38",
+    "lang": "it",
+    "text": "fatto 6 reps",
+    "intent": "LOG_SET",
+    "words": ["fatto", "6", "reps"],
+    "ner_tags": ["O", "B-REP", "O"]
+  },
+  {
+    "id": "fr_add_87",
+    "lang": "fr",
+    "text": "pompes 4 séries 15 répétitions 52.5 livres",
+    "intent": "ADD_EXERCISE",
+    "words": ["pompes", "4", "séries", "15", "répétitions", "52.5", "livres"],
+    "ner_tags": ["B-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_delete_48",
+    "lang": "it",
+    "text": "togli sollevamenti gambe",
+    "intent": "DELETE_EXERCISE",
+    "words": ["togli", "sollevamenti", "gambe"],
+    "ner_tags": ["O", "B-EXE", "I-EXE"]
+  },
+  {
+    "id": "en_multi_59",
+    "lang": "en",
+    "text": "add leg raises five x 4 , shoulder press 4 x 5",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "add",
+      "leg",
+      "raises",
+      "five",
+      "x",
+      "4",
+      ",",
+      "shoulder",
+      "press",
+      "4",
+      "x",
+      "5"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP",
+      "O",
+      "B-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "B-REP"
+    ]
+  },
+  {
+    "id": "es_add_270",
+    "lang": "es",
+    "text": "añade giro ruso 5 x cuatro 20 libras",
+    "intent": "ADD_EXERCISE",
+    "words": ["añade", "giro", "ruso", "5", "x", "cuatro", "20", "libras"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_add_9",
+    "lang": "it",
+    "text": "inserisci affondi 3 x 20 20 chili",
+    "intent": "ADD_EXERCISE",
+    "words": ["inserisci", "affondi", "3", "x", "20", "20", "chili"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_add_244",
+    "lang": "de",
+    "text": "hinzufügen leg extension 4 x 8 115 kg",
+    "intent": "ADD_EXERCISE",
+    "words": ["hinzufügen", "leg", "extension", "4", "x", "8", "115", "kg"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_add_289",
+    "lang": "en",
+    "text": "log walking lunges 3 times 5 55 kilos",
+    "intent": "ADD_EXERCISE",
+    "words": ["log", "walking", "lunges", "3", "times", "5", "55", "kilos"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "de_update_34",
+    "lang": "de",
+    "text": "ändere lunges zwölf reps 80 pfund",
+    "intent": "UPDATE_SET",
+    "words": ["ändere", "lunges", "zwölf", "reps", "80", "pfund"],
+    "ner_tags": ["O", "B-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "es_update_47",
+    "lang": "es",
+    "text": "actualiza prensa de piernas 5 reps",
+    "intent": "UPDATE_SET",
+    "words": ["actualiza", "prensa", "de", "piernas", "5", "reps"],
+    "ner_tags": ["O", "B-EXE", "I-EXE", "I-EXE", "B-REP", "O"]
+  },
+  {
+    "id": "de_add_188",
+    "lang": "de",
+    "text": "trainiere ausfallschritte 3 sätze à 10 wdh 80 kilogramm",
+    "intent": "ADD_EXERCISE",
+    "words": [
+      "trainiere",
+      "ausfallschritte",
+      "3",
+      "sätze",
+      "à",
+      "10",
+      "wdh",
+      "80",
+      "kilogramm"
+    ],
+    "ner_tags": [
+      "O",
+      "B-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "O",
+      "B-WGT",
+      "B-UNT"
+    ]
+  },
+  {
+    "id": "en_add_199",
+    "lang": "en",
+    "text": "plank 3 sets four reps 60 lbs",
+    "intent": "ADD_EXERCISE",
+    "words": ["plank", "3", "sets", "four", "reps", "60", "lbs"],
+    "ner_tags": ["B-EXE", "B-SET", "O", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "en_unk_18",
+    "lang": "en",
+    "text": "hello",
+    "intent": "UNKNOWN",
+    "words": ["hello"],
+    "ner_tags": ["O"]
+  },
+  {
+    "id": "fr_add_304",
+    "lang": "fr",
+    "text": "insère pompes 3 x six 80 livres",
+    "intent": "ADD_EXERCISE",
+    "words": ["insère", "pompes", "3", "x", "six", "80", "livres"],
+    "ner_tags": ["O", "B-EXE", "B-SET", "O", "B-REP", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "fr_update_74",
+    "lang": "fr",
+    "text": "change squat 12 reps 40 livres",
+    "intent": "UPDATE_SET",
+    "words": ["change", "squat", "12", "reps", "40", "livres"],
+    "ner_tags": ["O", "B-EXE", "B-REP", "O", "B-WGT", "B-UNT"]
+  },
+  {
+    "id": "it_add_66",
+    "lang": "it",
+    "text": "stacco da terra 3 serie da 10 102.5 kg",
+    "intent": "ADD_EXERCISE",
+    "words": ["stacco", "da", "terra", "3", "serie", "da", "10", "102.5", "kg"],
+    "ner_tags": [
+      "B-EXE",
+      "I-EXE",
+      "I-EXE",
+      "B-SET",
+      "O",
+      "O",
+      "B-REP",
+      "B-WGT",
+      "B-UNT"
+    ]
+  }
+]

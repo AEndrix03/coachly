@@ -1,0 +1,38 @@
+{
+  "intent2id": {
+    "ADD_EXERCISE": 0,
+    "LOG_SET": 1,
+    "UPDATE_SET": 2,
+    "DELETE_EXERCISE": 3,
+    "UNKNOWN": 4
+  },
+  "id2intent": {
+    "0": "ADD_EXERCISE",
+    "1": "LOG_SET",
+    "2": "UPDATE_SET",
+    "3": "DELETE_EXERCISE",
+    "4": "UNKNOWN"
+  },
+  "tag2id": {
+    "O": 0,
+    "B-EXE": 1,
+    "I-EXE": 2,
+    "B-SET": 3,
+    "B-REP": 4,
+    "B-WGT": 5,
+    "B-UNT": 6,
+    "B-MOD": 7,
+    "I-MOD": 8
+  },
+  "id2tag": {
+    "0": "O",
+    "1": "B-EXE",
+    "2": "I-EXE",
+    "3": "B-SET",
+    "4": "B-REP",
+    "5": "B-WGT",
+    "6": "B-UNT",
+    "7": "B-MOD",
+    "8": "I-MOD"
+  }
+}

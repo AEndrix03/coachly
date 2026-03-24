@@ -1,0 +1,13 @@
+# Coachly NLU — requirements
+# ROCm 6 / RX6600:
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/rocm6.0
+#   poi installa il resto con pip install -r requirements.txt
+
+transformers>=4.38.0
+datasets>=2.17.0
+seqeval>=1.2.2
+accelerate>=0.27.0
+onnx>=1.15.0
+onnxruntime>=1.17.0          # per quantizzazione INT8 (CPU)
+numpy>=1.24.0
+tqdm>=4.66.0
