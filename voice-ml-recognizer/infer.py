@@ -196,20 +196,101 @@ def _print_result(text, r):
     else:
         print("  Entities : —")
 
+# ─── EXPORT PT → ONNX ────────────────────────────────────────────────────────
+
+def export_to_onnx(pt_path, onnx_path=None):
+    """
+    Converte best_model.pt in ONNX + versione int8 quantizzata.
+    L'ONNX è 3-5x più veloce su CPU rispetto a PyTorch.
+    Richiede: pip install onnx onnxruntime
+    """
+    import torch
+    import torch.nn as nn
+
+    if onnx_path is None:
+        onnx_path = pt_path.replace(".pt", ".onnx")
+    int8_path = onnx_path.replace(".onnx", "_int8.onnx")
+
+    print(f"Carico {pt_path}...")
+    backend   = TorchBackend(pt_path)
+    model     = backend.model.eval()
+    tokenizer = backend.tokenizer
+
+    # Wrapper senza CRF (non esportabile in ONNX)
+    class _NoCRF(nn.Module):
+        def __init__(self, m): super().__init__(); self.m = m
+        def forward(self, input_ids, attention_mask):
+            return self.m(input_ids, attention_mask)
+
+    dummy = tokenizer(
+        ["add bench press 3 sets 10 reps"],
+        is_split_into_words=False,
+        max_length=MAX_LENGTH, padding="max_length",
+        truncation=True, return_tensors="pt",
+    )
+    print(f"Esporto ONNX → {onnx_path}")
+    with torch.no_grad():
+        torch.onnx.export(
+            _NoCRF(model),
+            args=(dummy["input_ids"], dummy["attention_mask"]),
+            f=onnx_path,
+            input_names=["input_ids", "attention_mask"],
+            output_names=["intent_logits", "slot_emissions"],
+            dynamic_axes={
+                "input_ids":      {0: "batch", 1: "seq"},
+                "attention_mask": {0: "batch", 1: "seq"},
+                "intent_logits":  {0: "batch"},
+                "slot_emissions": {0: "batch", 1: "seq"},
+            },
+            opset_version=17,
+        )
+    print(f"  {onnx_path} ({os.path.getsize(onnx_path)/1e6:.0f} MB)")
+
+    try:
+        from onnxruntime.quantization import quantize_dynamic, QuantType
+        quantize_dynamic(onnx_path, int8_path, weight_type=QuantType.QInt8)
+        print(f"  {int8_path} ({os.path.getsize(int8_path)/1e6:.0f} MB)  ← usa questo")
+        return int8_path
+    except Exception as e:
+        print(f"  Quantizzazione saltata: {e}")
+        return onnx_path
+
 # ─── MAIN ─────────────────────────────────────────────────────────────────────
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("text",    nargs="?",            help="Frase da analizzare")
-    parser.add_argument("--model", default="best_model.pt")
+    parser.add_argument("text",     nargs="?", help="Frase da analizzare")
+    parser.add_argument("--model",  default="best_model.pt")
     parser.add_argument("--labels", default="data/label_maps.json")
+    parser.add_argument("--export", action="store_true",
+                        help="Converti best_model.pt in ONNX (più veloce su CPU)")
     args = parser.parse_args()
 
-    # Scegli backend in base all'estensione
-    if args.model.endswith(".pt"):
-        backend = TorchBackend(args.model)
+    if args.export:
+        if not args.model.endswith(".pt"):
+            print("--export richiede un file .pt")
+            sys.exit(1)
+        onnx_out = export_to_onnx(args.model)
+        print(f"\nFatto. Per usarlo:\n  python infer.py --model {onnx_out}")
+        return
+
+    # Auto-usa ONNX se esiste già accanto al .pt (più veloce)
+    model_path = args.model
+    if model_path.endswith(".pt"):
+        int8 = model_path.replace(".pt", "_int8.onnx")
+        onnx = model_path.replace(".pt", ".onnx")
+        if os.path.exists(int8):
+            print(f"[auto] uso {int8} (più veloce)")
+            model_path = int8
+        elif os.path.exists(onnx):
+            print(f"[auto] uso {onnx} (più veloce)")
+            model_path = onnx
+
+    if model_path.endswith(".pt"):
+        backend = TorchBackend(model_path)
+        print("  Suggerimento: esegui con --export per velocizzare le prossime volte")
     else:
-        backend = OnnxBackend(args.model, args.labels)
+        backend = OnnxBackend(model_path, args.labels)
 
     print()
 
