@@ -1,26 +1,42 @@
 """
 Coachly NLU — Inferenza locale
 ===============================
-Supporta sia best_model.pt (PyTorch) che workout_nlu_int8.onnx (ONNX).
+Supporta sia best_model.pt (PyTorch) che best_model.onnx (ONNX).
 
-── Con best_model.pt ──────────────────────────────────────────────
-    pip install torch transformers pytorch-crf seqeval
-    python infer.py --model best_model.pt
+── Setup ──────────────────────────────────────────────────────────
+    pip install torch transformers pytorch-crf onnx onnxruntime
 
-── Con ONNX (più leggero, no GPU) ─────────────────────────────────
-    pip install onnxruntime transformers
-    python infer.py --model workout_nlu_int8.onnx
+── Prima volta: esporta in ONNX (una tantum, ~1 min) ──────────────
+    python infer.py --model best_model.pt --export
 
-File necessari:
-    best_model.pt      ← da Drive → coachly_nlu/
-    data/label_maps.json
+── Poi usa sempre l'ONNX (veloce) ─────────────────────────────────
+    python infer.py --model best_model.onnx "fatto deadlift 5 reps 140 kg"
+    python infer.py --model best_model.onnx          # modalità interattiva
 """
 
-import os, sys, json, argparse
+import os, sys, json, argparse, warnings
 import numpy as np
+
+# Silenzia il warning HuggingFace sull'HF_TOKEN (non serve per il tokenizer)
+os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+warnings.filterwarnings("ignore", message=".*unauthenticated.*")
 
 MAX_LENGTH = 96
 MODEL_NAME = "xlm-roberta-base"
+TOKENIZER_DIR = "tokenizer"   # cartella locale dove salvare il tokenizer
+
+# ─── TOKENIZER (scarica una volta, poi usa locale) ────────────────────────────
+
+def get_tokenizer():
+    from transformers import XLMRobertaTokenizerFast
+    if os.path.isdir(TOKENIZER_DIR):
+        tok = XLMRobertaTokenizerFast.from_pretrained(TOKENIZER_DIR)
+    else:
+        print(f"Download tokenizer (una volta sola)...")
+        tok = XLMRobertaTokenizerFast.from_pretrained(MODEL_NAME)
+        tok.save_pretrained(TOKENIZER_DIR)
+        print(f"Tokenizer salvato in ./{TOKENIZER_DIR}/")
+    return tok
 
 # ─── LABEL MAPS ───────────────────────────────────────────────────────────────
 
@@ -31,60 +47,71 @@ def load_labels(path="data/label_maps.json"):
     id2tag    = {int(k): v for k, v in lm["id2tag"].items()}
     return lm["intent2id"], id2intent, lm["tag2id"], id2tag
 
+# ─── ARCHITETTURA (deve corrispondere a colab_train.py) ───────────────────────
+
+def _build_model(num_intents, num_slot_labels):
+    """
+    Costruisce il modello con:
+    - eager attention (compatibile ONNX, nessun download pesi HF)
+    - -1e4 invece di -inf nel masking (ONNX non gestisce bene inf → NaN)
+    """
+    import torch
+    import torch.nn as nn
+    from torchcrf import CRF
+    from transformers import XLMRobertaConfig, XLMRobertaModel
+
+    class WorkoutNLUModel(nn.Module):
+        def __init__(self):
+            super().__init__()
+            config = XLMRobertaConfig.from_pretrained(
+                TOKENIZER_DIR if os.path.isdir(TOKENIZER_DIR) else MODEL_NAME
+            )
+            # eager: evita SDPA (Flash Attention) — necessario per export ONNX
+            config._attn_implementation = "eager"
+            # I pesi RoBERTa vengono dal checkpoint, non da HuggingFace
+            self.roberta     = XLMRobertaModel(config)
+            hidden           = config.hidden_size
+
+            self.intent_attn = nn.Linear(hidden, 1)
+            self.intent_head = nn.Sequential(
+                nn.Dropout(0.15), nn.Linear(hidden, hidden // 2),
+                nn.GELU(), nn.Dropout(0.15), nn.Linear(hidden // 2, num_intents),
+            )
+            self.slot_head = nn.Sequential(
+                nn.Dropout(0.15), nn.Linear(hidden, hidden // 2),
+                nn.GELU(), nn.Dropout(0.15), nn.Linear(hidden // 2, num_slot_labels),
+            )
+            self.crf = CRF(num_slot_labels, batch_first=True)
+
+        def forward(self, input_ids, attention_mask):
+            out    = self.roberta(input_ids=input_ids, attention_mask=attention_mask)
+            seq    = out.last_hidden_state                          # [B, T, H]
+            scores = self.intent_attn(seq).squeeze(-1)             # [B, T]
+            # -1e4 invece di -inf: numericamente equivalente ma ONNX-safe (no NaN)
+            scores = scores.masked_fill(attention_mask == 0, -1e4)
+            pooled = (torch.softmax(scores, -1).unsqueeze(-1) * seq).sum(1)
+            return self.intent_head(pooled), self.slot_head(seq)
+
+    return WorkoutNLUModel()
+
 # ─── BACKEND PyTorch (.pt) ────────────────────────────────────────────────────
 
 class TorchBackend:
     def __init__(self, pt_path):
         import torch
-        import torch.nn as nn
-        from torchcrf import CRF
-        from transformers import XLMRobertaConfig, XLMRobertaModel, XLMRobertaTokenizerFast
 
         ckpt = torch.load(pt_path, map_location="cpu", weights_only=False)
 
-        # tag2id è {tag: id}, lo invertiamo per ottenere {id: tag}
         intent2id      = ckpt["intent2id"]
         tag2id         = ckpt["tag2id"]
         self.id2intent = {v: k for k, v in intent2id.items()}
         self.id2tag    = {v: k for k, v in tag2id.items()}
 
-        num_intents     = len(intent2id)
-        num_slot_labels = len(tag2id)
-
-        class WorkoutNLUModel(nn.Module):
-            def __init__(self):
-                super().__init__()
-                # Carica solo la configurazione (architettura), NON i pesi da HuggingFace.
-                # I pesi sono già nel checkpoint — evita il download da 1.1 GB.
-                # eager: disabilita SDPA (Flash Attention) per compatibilità ONNX export.
-                config = XLMRobertaConfig.from_pretrained(MODEL_NAME)
-                config._attn_implementation = "eager"
-                self.roberta = XLMRobertaModel(config)
-                hidden       = config.hidden_size
-                self.intent_attn = nn.Linear(hidden, 1)
-                self.intent_head = nn.Sequential(
-                    nn.Dropout(0.15), nn.Linear(hidden, hidden // 2),
-                    nn.GELU(), nn.Dropout(0.15), nn.Linear(hidden // 2, num_intents),
-                )
-                self.slot_head = nn.Sequential(
-                    nn.Dropout(0.15), nn.Linear(hidden, hidden // 2),
-                    nn.GELU(), nn.Dropout(0.15), nn.Linear(hidden // 2, num_slot_labels),
-                )
-                self.crf = CRF(num_slot_labels, batch_first=True)
-
-            def forward(self, input_ids, attention_mask):
-                out    = self.roberta(input_ids=input_ids, attention_mask=attention_mask)
-                seq    = out.last_hidden_state
-                scores = self.intent_attn(seq).squeeze(-1)
-                scores = scores.masked_fill(attention_mask == 0, float('-inf'))
-                pooled = (torch.softmax(scores, -1).unsqueeze(-1) * seq).sum(1)
-                return self.intent_head(pooled), self.slot_head(seq)
-
-        self.model = WorkoutNLUModel()
+        self.tokenizer = get_tokenizer()
+        self.model     = _build_model(len(intent2id), len(tag2id))
         self.model.load_state_dict(ckpt["model_state"])
         self.model.eval()
-        self.torch     = torch
-        self.tokenizer = XLMRobertaTokenizerFast.from_pretrained(MODEL_NAME)
+        self.torch = torch
         print(f"Modello PT caricato: {pt_path}")
 
     def predict(self, text):
@@ -95,20 +122,16 @@ class TorchBackend:
             max_length=MAX_LENGTH, padding="max_length",
             truncation=True, return_tensors="pt",
         )
-        with torch.no_grad():
+        with torch.inference_mode():
             int_log, emissions = self.model(enc["input_ids"], enc["attention_mask"])
-            crf_mask   = enc["attention_mask"].bool()
-            slot_preds = self.model.crf.decode(emissions, mask=crf_mask)[0]
+            slot_preds = self.model.crf.decode(emissions, enc["attention_mask"].bool())[0]
 
         probs  = torch.softmax(int_log, -1)[0]
         intent = self.id2intent[probs.argmax().item()]
         conf   = probs.max().item()
-
         entities = _bio_to_entities(
-            words, slot_preds,
-            enc.word_ids(0),
-            enc["attention_mask"][0].tolist(),
-            self.id2tag,
+            words, slot_preds, enc.word_ids(0),
+            enc["attention_mask"][0].tolist(), self.id2tag,
         )
         return {"intent": intent, "confidence": conf, "entities": entities}
 
@@ -117,17 +140,18 @@ class TorchBackend:
 class OnnxBackend:
     def __init__(self, onnx_path, labels_path="data/label_maps.json"):
         import onnxruntime as ort
-        from transformers import XLMRobertaTokenizerFast
 
         _, self.id2intent, _, self.id2tag = load_labels(labels_path)
+        self.tokenizer = get_tokenizer()
+
         opts = ort.SessionOptions()
         opts.inter_op_num_threads = 4
         opts.intra_op_num_threads = 4
-        self.session   = ort.InferenceSession(
+        opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+        self.session = ort.InferenceSession(
             onnx_path, sess_options=opts,
             providers=["CPUExecutionProvider"],
         )
-        self.tokenizer = XLMRobertaTokenizerFast.from_pretrained(MODEL_NAME)
         print(f"Modello ONNX caricato: {onnx_path}")
 
     def predict(self, text):
@@ -148,10 +172,8 @@ class OnnxBackend:
 
         slot_preds = np.argmax(slot_em[0], axis=-1).tolist()
         entities   = _bio_to_entities(
-            words, slot_preds,
-            enc.word_ids(0),
-            enc["attention_mask"][0].tolist(),
-            self.id2tag,
+            words, slot_preds, enc.word_ids(0),
+            enc["attention_mask"][0].tolist(), self.id2tag,
         )
         return {"intent": intent, "confidence": conf, "entities": entities}
 
@@ -201,52 +223,59 @@ def _print_result(text, r):
 # ─── EXPORT PT → ONNX ────────────────────────────────────────────────────────
 
 def export_to_onnx(pt_path, onnx_path=None):
-    """
-    Converte best_model.pt in ONNX + versione int8 quantizzata.
-    L'ONNX è 3-5x più veloce su CPU rispetto a PyTorch.
-    Richiede: pip install onnx onnxruntime
-    """
-    import torch
-    import torch.nn as nn
+    import torch, torch.nn as nn
 
     if onnx_path is None:
         onnx_path = pt_path.replace(".pt", ".onnx")
     int8_path = onnx_path.replace(".onnx", "_int8.onnx")
 
     print(f"Carico {pt_path}...")
-    backend   = TorchBackend(pt_path)
-    model     = backend.model.eval()
-    tokenizer = backend.tokenizer
+    backend = TorchBackend(pt_path)
+    model   = backend.model.eval()
 
-    # Wrapper senza CRF (non esportabile in ONNX)
     class _NoCRF(nn.Module):
         def __init__(self, m): super().__init__(); self.m = m
-        def forward(self, input_ids, attention_mask):
-            return self.m(input_ids, attention_mask)
+        def forward(self, ids, mask): return self.m(ids, mask)
 
-    dummy = tokenizer(
+    dummy = backend.tokenizer(
         ["add bench press 3 sets 10 reps"],
         is_split_into_words=False,
         max_length=MAX_LENGTH, padding="max_length",
         truncation=True, return_tensors="pt",
     )
+
     print(f"Esporto ONNX → {onnx_path}")
-    with torch.no_grad():
-        torch.onnx.export(
-            _NoCRF(model),
-            args=(dummy["input_ids"], dummy["attention_mask"]),
-            f=onnx_path,
-            input_names=["input_ids", "attention_mask"],
-            output_names=["intent_logits", "slot_emissions"],
-            dynamic_axes={
-                "input_ids":      {0: "batch", 1: "seq"},
-                "attention_mask": {0: "batch", 1: "seq"},
-                "intent_logits":  {0: "batch"},
-                "slot_emissions": {0: "batch", 1: "seq"},
-            },
-            opset_version=17,
-        )
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")   # silenzia TracerWarning durante export
+        with torch.no_grad():
+            torch.onnx.export(
+                _NoCRF(model),
+                args=(dummy["input_ids"], dummy["attention_mask"]),
+                f=onnx_path,
+                input_names=["input_ids", "attention_mask"],
+                output_names=["intent_logits", "slot_emissions"],
+                dynamic_axes={
+                    "input_ids":      {0: "batch"},
+                    "attention_mask": {0: "batch"},
+                    "intent_logits":  {0: "batch"},
+                    "slot_emissions": {0: "batch"},
+                },
+                opset_version=14,   # 14 più stabile di 17 per transformers
+            )
     print(f"  {onnx_path} ({os.path.getsize(onnx_path)/1e6:.0f} MB)")
+
+    # Verifica che il modello ONNX produca output sani
+    print("  Verifica output ONNX...")
+    import onnxruntime as ort
+    sess = ort.InferenceSession(onnx_path, providers=["CPUExecutionProvider"])
+    out  = sess.run(None, {
+        "input_ids":      dummy["input_ids"].numpy().astype(np.int64),
+        "attention_mask": dummy["attention_mask"].numpy().astype(np.int64),
+    })
+    if np.isnan(out[0]).any():
+        print("  ATTENZIONE: output contiene NaN — l'ONNX potrebbe non funzionare")
+    else:
+        print(f"  Output OK — intent logits: {out[0][0].round(3)}")
 
     try:
         from onnxruntime.quantization import quantize_dynamic, QuantType
@@ -265,35 +294,30 @@ def main():
     parser.add_argument("--model",  default="best_model.pt")
     parser.add_argument("--labels", default="data/label_maps.json")
     parser.add_argument("--export", action="store_true",
-                        help="Converti best_model.pt in ONNX (più veloce su CPU)")
+                        help="Converti .pt → ONNX quantizzato (esegui una volta sola)")
     args = parser.parse_args()
 
     if args.export:
         if not args.model.endswith(".pt"):
-            print("--export richiede un file .pt")
-            sys.exit(1)
-        onnx_out = export_to_onnx(args.model)
-        print(f"\nFatto. Per usarlo:\n  python infer.py --model {onnx_out}")
+            print("--export richiede un file .pt"); sys.exit(1)
+        out = export_to_onnx(args.model)
+        print(f"\nFatto. Usa:\n  python infer.py --model {out}")
         return
 
-    # Auto-usa ONNX se esiste già accanto al .pt (più veloce)
+    # Auto-usa ONNX se già esportato (evita di caricare PyTorch)
     model_path = args.model
     if model_path.endswith(".pt"):
-        int8 = model_path.replace(".pt", "_int8.onnx")
-        onnx = model_path.replace(".pt", ".onnx")
-        if os.path.exists(int8):
-            print(f"[auto] uso {int8} (più veloce)")
-            model_path = int8
-        elif os.path.exists(onnx):
-            print(f"[auto] uso {onnx} (più veloce)")
-            model_path = onnx
+        for candidate in [
+            model_path.replace(".pt", "_int8.onnx"),
+            model_path.replace(".pt", ".onnx"),
+        ]:
+            if os.path.exists(candidate):
+                print(f"[auto] uso {candidate}")
+                model_path = candidate
+                break
 
-    if model_path.endswith(".pt"):
-        backend = TorchBackend(model_path)
-        print("  Suggerimento: esegui con --export per velocizzare le prossime volte")
-    else:
-        backend = OnnxBackend(model_path, args.labels)
-
+    backend = (TorchBackend(model_path) if model_path.endswith(".pt")
+               else OnnxBackend(model_path, args.labels))
     print()
 
     if args.text:
