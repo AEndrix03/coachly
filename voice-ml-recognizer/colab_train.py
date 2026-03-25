@@ -69,7 +69,10 @@ TAG2ID    = {k: i for i, k in enumerate(NER_TAGS)}
 def load_label_maps(path):
     with open(path) as f:
         lm = json.load(f)
-    return lm["intent2id"], lm["id2intent"], lm["tag2id"], lm["id2tag"]
+    # JSON ha sempre chiavi stringa; convertiamo in int per usare le dict con indici numerici
+    id2intent = {int(k): v for k, v in lm["id2intent"].items()}
+    id2tag    = {int(k): v for k, v in lm["id2tag"].items()}
+    return lm["intent2id"], id2intent, lm["tag2id"], id2tag
 
 # ─── DATASET ────────────────────────────────────────────────────────────────────
 
