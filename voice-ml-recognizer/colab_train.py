@@ -245,7 +245,7 @@ def inference_demo():
     print("=" * 60)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    ckpt   = torch.load(os.path.join(CFG.output_dir, "best_model.pt"), map_location=device)
+    ckpt   = torch.load(os.path.join(CFG.output_dir, "best_model.pt"), map_location=device, weights_only=False)
 
     intent2id = ckpt["intent2id"]
     tag2id    = ckpt["tag2id"]
@@ -387,8 +387,30 @@ def train():
 
     best_combined    = 0.0
     patience_counter = 0
+    start_epoch      = 1
 
-    for epoch in range(1, CFG.num_epochs + 1):
+    # ── RESUME DA DRIVE ──────────────────────────────────────────────────────────
+    resume_path_drive = os.path.join(CFG.drive_output, "resume_ckpt.pt")
+    resume_path_local = os.path.join(CFG.output_dir, "resume_ckpt.pt")
+
+    # Preferisce Drive (sopravvive al reset Colab), poi local
+    for rp in [resume_path_drive, resume_path_local]:
+        if os.path.exists(rp):
+            print(f"\nResume checkpoint trovato: {rp}")
+            rc = torch.load(rp, map_location=device, weights_only=False)
+            model.load_state_dict(rc["model_state"])
+            optimizer.load_state_dict(rc["optimizer_state"])
+            scheduler.load_state_dict(rc["scheduler_state"])
+            scaler.load_state_dict(rc["scaler_state"])
+            best_combined    = rc["best_combined"]
+            patience_counter = rc["patience_counter"]
+            start_epoch      = rc["epoch"] + 1
+            print(f"  → riparto da epoch {start_epoch} | best={best_combined:.4f} | patience={patience_counter}/{CFG.patience}\n")
+            if rp == resume_path_drive:
+                shutil.copy2(rp, resume_path_local)
+            break
+
+    for epoch in range(start_epoch, CFG.num_epochs + 1):
         model.train()
         loss_i_tot = loss_s_tot = 0.0
         t0 = time.time()
@@ -447,11 +469,34 @@ def train():
             if patience_counter >= CFG.patience:
                 print(f"\nEarly stopping a epoch {epoch}")
                 break
+
+        # ── SALVA RESUME CHECKPOINT (locale + Drive) ─────────────────────────────
+        resume_state = {
+            "epoch":            epoch,
+            "model_state":      model.state_dict(),
+            "optimizer_state":  optimizer.state_dict(),
+            "scheduler_state":  scheduler.state_dict(),
+            "scaler_state":     scaler.state_dict(),
+            "best_combined":    best_combined,
+            "patience_counter": patience_counter,
+            "intent2id":        intent2id,
+            "tag2id":           tag2id,
+        }
+        torch.save(resume_state, resume_path_local)
+        if os.path.exists("/content/drive"):
+            os.makedirs(CFG.drive_output, exist_ok=True)
+            shutil.copy2(resume_path_local, resume_path_drive)
+            # Copia anche il best_model su Drive ad ogni epoch
+            best_src = os.path.join(CFG.output_dir, "best_model.pt")
+            if os.path.exists(best_src):
+                shutil.copy2(best_src, os.path.join(CFG.drive_output, "best_model.pt"))
+            print(f"         Drive aggiornato (epoch {epoch})")
+
         print()
 
     # Test finale
     print("=" * 60)
-    ckpt = torch.load(os.path.join(CFG.output_dir, "best_model.pt"), map_location=device)
+    ckpt = torch.load(os.path.join(CFG.output_dir, "best_model.pt"), map_location=device, weights_only=False)
     model.load_state_dict(ckpt["model_state"])
     tm = evaluate(model, test_loader, device, id2intent, id2tag, tag2id)
     print(f"Test -> intent_acc={tm['intent_acc']:.4f} slot_f1={tm['slot_f1']:.4f} combined={tm['combined']:.4f}")
