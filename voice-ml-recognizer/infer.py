@@ -38,17 +38,15 @@ class TorchBackend:
         import torch
         import torch.nn as nn
         from torchcrf import CRF
-        from transformers import XLMRobertaModel, XLMRobertaTokenizerFast
+        from transformers import XLMRobertaConfig, XLMRobertaModel, XLMRobertaTokenizerFast
 
         ckpt = torch.load(pt_path, map_location="cpu", weights_only=False)
 
-        intent2id = ckpt["intent2id"]
-        tag2id    = ckpt["tag2id"]
+        # tag2id è {tag: id}, lo invertiamo per ottenere {id: tag}
+        intent2id      = ckpt["intent2id"]
+        tag2id         = ckpt["tag2id"]
         self.id2intent = {v: k for k, v in intent2id.items()}
-        self.id2tag    = {int(k) if isinstance(k, str) else k: v for k, v in tag2id.items()}
-        # id2tag dal checkpoint ha chiavi stringa se salvato da json, int altrimenti
-        if all(isinstance(k, str) for k in self.id2tag):
-            self.id2tag = {int(k): v for k, v in self.id2tag.items()}
+        self.id2tag    = {v: k for k, v in tag2id.items()}
 
         num_intents     = len(intent2id)
         num_slot_labels = len(tag2id)
@@ -56,8 +54,11 @@ class TorchBackend:
         class WorkoutNLUModel(nn.Module):
             def __init__(self):
                 super().__init__()
-                self.roberta     = XLMRobertaModel.from_pretrained(MODEL_NAME)
-                hidden           = self.roberta.config.hidden_size
+                # Carica solo la configurazione (architettura), NON i pesi da HuggingFace.
+                # I pesi sono già nel checkpoint — evita il download da 1.1 GB.
+                config       = XLMRobertaConfig.from_pretrained(MODEL_NAME)
+                self.roberta = XLMRobertaModel(config)
+                hidden       = config.hidden_size
                 self.intent_attn = nn.Linear(hidden, 1)
                 self.intent_head = nn.Sequential(
                     nn.Dropout(0.15), nn.Linear(hidden, hidden // 2),
