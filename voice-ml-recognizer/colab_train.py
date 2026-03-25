@@ -15,15 +15,20 @@ import os, sys, json, time, random, shutil
 import numpy as np
 
 # ─── 1. INSTALLA DIPENDENZE ─────────────────────────────────────────────────────
-# (già installato su Colab: torch, torchvision)
 
 def install_deps():
     import subprocess
-    pkgs = ["transformers>=4.38.0", "seqeval>=1.2.2", "onnx>=1.15.0", "onnxruntime>=1.17.0"]
+    pkgs = [
+        "transformers>=4.38.0",
+        "seqeval>=1.2.2",
+        "onnx>=1.15.0",
+        "onnxruntime>=1.17.0",
+        "pytorch-crf>=0.7.2",   # CRF layer per BIO valido
+    ]
     subprocess.run([sys.executable, "-m", "pip", "install", "-q"] + pkgs, check=True)
     print("Dipendenze installate.")
 
-# ─── 2. MOUNT DRIVE (opzionale, per salvare il modello) ─────────────────────────
+# ─── 2. MOUNT DRIVE ─────────────────────────────────────────────────────────────
 
 def mount_drive():
     try:
@@ -44,16 +49,27 @@ class CFG:
     model_name:      str   = "xlm-roberta-base"
     data_dir:        str   = "data"
     output_dir:      str   = "output/workout_nlu"
-    drive_output:    str   = "/content/drive/MyDrive/coachly_nlu"  # dove salvare su Drive
-    max_length:      int   = 96    # 64 troppo corto per frasi con 3-4 esercizi in catena
-    batch_size:      int   = 32    # T4 regge 32 con fp16
+    drive_output:    str   = "/content/drive/MyDrive/coachly_nlu"
+    # Sequenze: 96 copre frasi con 3-4 esercizi in catena senza troncare
+    max_length:      int   = 96
+    batch_size:      int   = 32
+    # Gradient accumulation: batch effettivo = batch_size * accum_steps = 64
+    # Più stabile senza aumentare VRAM
+    accum_steps:     int   = 2
     num_epochs:      int   = 20
     learning_rate:   float = 2e-5
+    # LLRD: ogni layer del backbone ha lr * llrd_decay^(distanza_dalla_cima)
+    # Layer 11 (top) → lr * 0.9, Layer 0 (bottom) → lr * 0.9^12 ≈ lr * 0.28
+    # Evita di distruggere la conoscenza preaddestrata nei layer bassi
+    llrd_decay:      float = 0.9
     weight_decay:    float = 0.01
     warmup_ratio:    float = 0.1
-    label_smoothing: float = 0.1   # evita overconfidence, migliora generalizzazione
+    # Label smoothing: evita overconfidence (0 → 1 duri, 0.1 → 0.9 soft)
+    label_smoothing: float = 0.1
+    dropout:         float = 0.15
     intent_weight:   float = 1.0
-    slot_weight:     float = 2.0   # slot più difficili degli intent → più peso
+    # Slot più difficili → più peso nella loss totale
+    slot_weight:     float = 2.0
     grad_clip:       float = 1.0
     seed:            int   = 42
     patience:        int   = 6
@@ -64,13 +80,10 @@ class CFG:
 INTENTS = ["ADD_EXERCISE", "LOG_SET", "UPDATE_SET", "DELETE_EXERCISE", "UNKNOWN"]
 NER_TAGS = ["O", "B-EXE", "I-EXE", "B-SET", "B-REP", "B-WGT", "B-UNT", "B-MOD", "I-MOD"]
 
-INTENT2ID = {k: i for i, k in enumerate(INTENTS)}
-TAG2ID    = {k: i for i, k in enumerate(NER_TAGS)}
-
 def load_label_maps(path):
     with open(path) as f:
         lm = json.load(f)
-    # JSON ha sempre chiavi stringa; convertiamo in int per usare le dict con indici numerici
+    # JSON ha chiavi stringa → convertiamo in int per usarle con indici numerici
     id2intent = {int(k): v for k, v in lm["id2intent"].items()}
     id2tag    = {int(k): v for k, v in lm["id2tag"].items()}
     return lm["intent2id"], id2intent, lm["tag2id"], id2tag
@@ -79,14 +92,19 @@ def load_label_maps(path):
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from torch.optim import AdamW
-from typing import Dict, List, Tuple
-from transformers import XLMRobertaTokenizerFast, XLMRobertaModel, get_linear_schedule_with_warmup
-from seqeval.metrics import f1_score as seq_f1
+from torchcrf import CRF
+from transformers import (
+    XLMRobertaTokenizerFast,
+    XLMRobertaModel,
+    get_cosine_schedule_with_warmup,
+)
+from seqeval.metrics import f1_score as seq_f1, classification_report as seq_report
 
 class WorkoutNLUDataset(Dataset):
-    def __init__(self, path, tokenizer, intent2id, tag2id, max_length=64):
+    def __init__(self, path, tokenizer, intent2id, tag2id, max_length=96):
         with open(path, encoding="utf-8") as f:
             self.examples = json.load(f)
         self.tokenizer  = tokenizer
@@ -94,13 +112,13 @@ class WorkoutNLUDataset(Dataset):
         self.tag2id     = tag2id
         self.max_length = max_length
 
-        # Conta quante frasi vengono troncate (utile per scegliere max_length)
+        # Conta troncamenti: se molti, aumenta max_length
         truncated = sum(
             1 for ex in self.examples
             if len(tokenizer(ex["words"], is_split_into_words=True)["input_ids"]) > max_length
         )
         if truncated:
-            print(f"  ⚠ {path}: {truncated}/{len(self.examples)} frasi troncate a {max_length} token")
+            print(f"  WARNING {path}: {truncated}/{len(self.examples)} frasi troncate a {max_length} token")
 
     def __len__(self):
         return len(self.examples)
@@ -123,6 +141,7 @@ class WorkoutNLUDataset(Dataset):
         attention_mask = encoding["attention_mask"].squeeze(0)
         word_ids       = encoding.word_ids(batch_index=0)
 
+        # -100 su subword non-primi e su token speciali (ignorati dalla loss)
         labels_ner = []
         prev_wid = None
         for wid in word_ids:
@@ -145,11 +164,32 @@ class WorkoutNLUDataset(Dataset):
 # ─── MODELLO ────────────────────────────────────────────────────────────────────
 
 class WorkoutNLUModel(nn.Module):
-    def __init__(self, model_name, num_intents, num_slot_labels, dropout=0.1):
+    """
+    XLM-RoBERTa + due teste:
+      - Intent:  attention pooling su tutti i token → MLP → classe
+      - Slot:    proiezione per-token → CRF (Viterbi in decode)
+
+    Attention pooling (vs solo [CLS]):
+      Il [CLS] sintetizza l'intera frase ma può perdere informazioni locali.
+      Con attention pooling il modello impara autonomamente quale parte della
+      frase è più rilevante per capire l'intent (es. il verbo "aggiungi").
+
+    CRF (Conditional Random Field):
+      Un Linear layer predice score indipendenti per ogni token.
+      Il CRF aggiunge una matrice di transizione che il modello impara:
+      sa che dopo B-EXE può venire I-EXE ma non B-REP senza B-EXE prima.
+      Forza sequenze BIO valide e usa Viterbi per trovare il percorso globalmente
+      ottimale invece di scegliere token per token.
+    """
+    def __init__(self, model_name, num_intents, num_slot_labels, dropout=0.15):
         super().__init__()
         self.roberta = XLMRobertaModel.from_pretrained(model_name)
         hidden = self.roberta.config.hidden_size  # 768
 
+        # Attention pooling: impara un peso per ogni token
+        self.intent_attn = nn.Linear(hidden, 1)
+
+        # Intent head: pooled repr → classificazione
         self.intent_head = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(hidden, hidden // 2),
@@ -157,60 +197,146 @@ class WorkoutNLUModel(nn.Module):
             nn.Dropout(dropout),
             nn.Linear(hidden // 2, num_intents),
         )
+
+        # Slot head: per-token → emissioni per CRF (2 layer per più capacità)
         self.slot_head = nn.Sequential(
             nn.Dropout(dropout),
-            nn.Linear(hidden, num_slot_labels),
+            nn.Linear(hidden, hidden // 2),
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden // 2, num_slot_labels),
         )
 
+        # CRF: impara transizioni tra tag (es. O→B-EXE ok, O→I-EXE no)
+        self.crf = CRF(num_slot_labels, batch_first=True)
+
     def forward(self, input_ids, attention_mask):
-        out      = self.roberta(input_ids=input_ids, attention_mask=attention_mask)
-        seq      = out.last_hidden_state       # [B, T, 768]
-        cls      = seq[:, 0, :]               # [B, 768]
-        return self.intent_head(cls), self.slot_head(seq)
+        out = self.roberta(input_ids=input_ids, attention_mask=attention_mask)
+        seq = out.last_hidden_state  # [B, T, 768]
+
+        # Attention pooling per intent
+        attn_scores = self.intent_attn(seq).squeeze(-1)                  # [B, T]
+        attn_scores = attn_scores.masked_fill(attention_mask == 0, float('-inf'))
+        attn_weights = torch.softmax(attn_scores, dim=-1)                # [B, T]
+        pooled = (attn_weights.unsqueeze(-1) * seq).sum(dim=1)           # [B, 768]
+
+        intent_logits  = self.intent_head(pooled)   # [B, num_intents]
+        slot_emissions = self.slot_head(seq)         # [B, T, num_tags]
+        return intent_logits, slot_emissions
+
+    def crf_loss(self, emissions, tags, mask):
+        """Negative log-likelihood CRF. tags non deve contenere -100."""
+        return -self.crf(emissions, tags, mask=mask, reduction='mean')
+
+    def crf_decode(self, emissions, mask):
+        """Viterbi decoding. Ritorna list[list[int]], una per esempio."""
+        return self.crf.decode(emissions, mask=mask)
+
+# ─── OPTIMIZER CON LLRD ──────────────────────────────────────────────────────────
+
+def build_optimizer(model, base_lr, weight_decay, llrd_decay):
+    """
+    Layer-wise Learning Rate Decay (LLRD).
+    I layer bassi del transformer contengono feature linguistiche generali
+    già ben apprese durante il preaddestramento su 100+ lingue.
+    Dargli un LR piccolo evita di sovrascrivere quella conoscenza.
+    I layer alti e le teste (addestrate da zero) hanno LR più alto.
+    """
+    no_decay = {"bias", "LayerNorm.weight", "LayerNorm.bias"}
+    num_layers = model.roberta.config.num_hidden_layers  # 12
+
+    groups = []
+
+    def _add(named_params, lr):
+        wd = [p for n, p in named_params if not any(nd in n for nd in no_decay)]
+        nd = [p for n, p in named_params if     any(nd in n for nd in no_decay)]
+        if wd: groups.append({"params": wd, "lr": lr, "weight_decay": weight_decay})
+        if nd: groups.append({"params": nd, "lr": lr, "weight_decay": 0.0})
+
+    # Embeddings: lr più basso (conoscenza linguistica di base)
+    _add(model.roberta.embeddings.named_parameters(),
+         base_lr * (llrd_decay ** (num_layers + 1)))
+
+    # Layer encoder: LR cresce salendo verso l'output
+    for i in range(num_layers):
+        _add(model.roberta.encoder.layer[i].named_parameters(),
+             base_lr * (llrd_decay ** (num_layers - i)))
+
+    # Pooler RoBERTa: LR base
+    if hasattr(model.roberta, "pooler") and model.roberta.pooler is not None:
+        _add(model.roberta.pooler.named_parameters(), base_lr)
+
+    # Teste (addestrate da zero): LR più alto
+    head_lr = base_lr * 5
+    for component in [model.intent_attn, model.intent_head,
+                      model.slot_head, model.crf]:
+        _add(component.named_parameters(), head_lr)
+
+    return AdamW(groups)
 
 # ─── EVALUATE ───────────────────────────────────────────────────────────────────
 
-def evaluate(model, loader, device, id2intent, id2tag, tag2id):
+def evaluate(model, loader, device, id2intent, id2tag, verbose=False):
+    """
+    verbose=True: stampa classification report per entity type
+    """
     model.eval()
     correct = total = 0
     all_pred, all_true = [], []
 
     with torch.no_grad():
         for batch in loader:
-            ids   = batch["input_ids"].to(device)
-            mask  = batch["attention_mask"].to(device)
-            il    = batch["intent_label"].to(device)
-            nl    = batch["ner_labels"].to(device)
+            ids  = batch["input_ids"].to(device)
+            mask = batch["attention_mask"].to(device)
+            il   = batch["intent_label"].to(device)
+            nl   = batch["ner_labels"].to(device)
 
-            int_log, slot_log = model(ids, mask)
+            int_log, emissions = model(ids, mask)
 
+            # Intent accuracy
             pred = int_log.argmax(-1)
             correct += (pred == il).sum().item()
             total   += il.size(0)
 
-            pb = slot_log.argmax(-1).cpu().numpy()
-            tb = nl.cpu().numpy()
-            for pr, tr in zip(pb, tb):
-                ps, ts = [], []
-                for p, t in zip(pr, tr):
-                    if t == -100: continue
-                    ps.append(id2tag.get(p, "O"))
-                    ts.append(id2tag.get(t, "O"))
-                all_pred.append(ps)
-                all_true.append(ts)
+            # CRF decode: maschera le posizioni -100
+            crf_mask = (nl != -100).bool()
+            decoded  = model.crf_decode(emissions, crf_mask)  # list[list[int]]
+
+            for pred_seq, true_row, mask_row in zip(
+                decoded, nl.cpu().numpy(), crf_mask.cpu().numpy()
+            ):
+                true_valid = true_row[mask_row]
+                all_pred.append([id2tag[p] for p in pred_seq])
+                all_true.append([id2tag[t] for t in true_valid])
 
     acc = correct / total if total else 0.0
     try:
         f1 = seq_f1(all_true, all_pred, zero_division=0)
+        if verbose:
+            print(seq_report(all_true, all_pred, zero_division=0))
     except Exception:
         f1 = 0.0
+
     return {"intent_acc": acc, "slot_f1": f1, "combined": 0.5 * acc + 0.5 * f1}
 
 # ─── EXPORT ONNX ────────────────────────────────────────────────────────────────
 
 def export_onnx(model, tokenizer, device, output_dir):
+    """
+    Esporta solo le emissioni (backbone + teste lineari).
+    Il CRF Viterbi non è esportabile in ONNX standard, ma in pratica
+    dopo training il modello produce raramente sequenze BIO invalide,
+    quindi argmax è sufficiente in produzione.
+    """
     print("\nExport ONNX...")
-    model.eval(); model.cpu()
+
+    # Wrapper senza CRF per export
+    class _NoCRF(nn.Module):
+        def __init__(self, m): super().__init__(); self.m = m
+        def forward(self, input_ids, attention_mask):
+            return self.m(input_ids, attention_mask)
+
+    export_model = _NoCRF(model).cpu().eval()
 
     dummy = tokenizer(
         ["add bench press 3 sets 10 reps"],
@@ -224,16 +350,16 @@ def export_onnx(model, tokenizer, device, output_dir):
 
     with torch.no_grad():
         torch.onnx.export(
-            model,
+            export_model,
             args=(dummy["input_ids"], dummy["attention_mask"]),
             f=onnx_path,
             input_names=["input_ids", "attention_mask"],
-            output_names=["intent_logits", "slot_logits"],
+            output_names=["intent_logits", "slot_emissions"],
             dynamic_axes={
-                "input_ids":      {0: "batch", 1: "seq"},
-                "attention_mask": {0: "batch", 1: "seq"},
-                "intent_logits":  {0: "batch"},
-                "slot_logits":    {0: "batch", 1: "seq"},
+                "input_ids":       {0: "batch", 1: "seq"},
+                "attention_mask":  {0: "batch", 1: "seq"},
+                "intent_logits":   {0: "batch"},
+                "slot_emissions":  {0: "batch", 1: "seq"},
             },
             opset_version=17,
         )
@@ -257,7 +383,10 @@ def inference_demo():
     print("=" * 60)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    ckpt   = torch.load(os.path.join(CFG.output_dir, "best_model.pt"), map_location=device, weights_only=False)
+    ckpt   = torch.load(
+        os.path.join(CFG.output_dir, "best_model.pt"),
+        map_location=device, weights_only=False,
+    )
 
     intent2id = ckpt["intent2id"]
     tag2id    = ckpt["tag2id"]
@@ -269,19 +398,25 @@ def inference_demo():
         CFG.model_name,
         num_intents=len(intent2id),
         num_slot_labels=len(tag2id),
+        dropout=CFG.dropout,
     ).to(device)
     model.load_state_dict(ckpt["model_state"])
     model.eval()
 
     sentences = [
+        # Frasi semplici
         ("it", "aggiungi bench press 3 x 10 a cedimento"),
-        ("it", "aggiungi squat 4 serie da 8 e push up 3 x 15 dropset"),
         ("it", "fatto deadlift 5 reps 140 kg"),
         ("it", "rimuovi lat machine"),
         ("en", "add bench press 3 sets of 8 reps 80 kg to failure"),
-        ("en", "add pull ups 4 x 8 and dips 3 x 12 then leg raises 3 x 20"),
         ("en", "done bench press 8 reps 80 kg"),
         ("it", "quanto riposo tra le serie"),
+        # Frasi con esercizi in catena (obiettivo principale)
+        ("it", "aggiungi squat 4 serie da 8 e push up 3 x 15 dropset"),
+        ("it", "aggiungi bench press 3x10 e squat 4x8 e deadlift 5x5 a cedimento"),
+        ("en", "add pull ups 4 x 8 and dips 3 x 12 then leg raises 3 x 20"),
+        ("en", "add bench press 3 sets 10 reps and barbell row 4 sets 8 reps and pull ups 3 sets to failure"),
+        # Multilingue
         ("fr", "ajoute développé couché 3 séries de 8 reps 60 kg"),
         ("de", "füge hinzu bankdrücken 3 sätze 10 wiederholungen"),
     ]
@@ -298,19 +433,25 @@ def inference_demo():
         ).to(device)
 
         with torch.no_grad():
-            int_log, slot_log = model(enc["input_ids"], enc["attention_mask"])
+            int_log, emissions = model(enc["input_ids"], enc["attention_mask"])
+            # CRF Viterbi decode (sequenza BIO valida garantita)
+            crf_mask   = enc["attention_mask"].bool()
+            slot_preds = model.crf_decode(emissions, crf_mask)[0]  # list[int]
 
         probs  = torch.softmax(int_log, -1)[0]
         intent = id2intent[probs.argmax().item()]
         conf   = probs.max().item()
 
-        slot_preds = slot_log.argmax(-1)[0].cpu().tolist()
-        word_ids   = enc.word_ids(0)
-
+        word_ids = enc.word_ids(0)
         seen = {}
+        pred_idx = 0
         for pos, wid in enumerate(word_ids):
+            if enc["attention_mask"][0, pos].item() == 0:
+                break
             if wid is not None and wid not in seen:
-                seen[wid] = id2tag.get(slot_preds[pos], "O")
+                seen[wid] = id2tag.get(slot_preds[pred_idx], "O")
+            if enc["attention_mask"][0, pos].item() == 1:
+                pred_idx = min(pred_idx + 1, len(slot_preds) - 1)
 
         entities = {}
         cur_type, cur_words = None, []
@@ -320,12 +461,13 @@ def inference_demo():
                 if cur_type:
                     entities.setdefault(cur_type, []).append(" ".join(cur_words))
                 cur_type, cur_words = tag[2:], [words[wid]]
-            elif tag.startswith("I-") and cur_type:
+            elif tag.startswith("I-") and cur_type == tag[2:]:
                 cur_words.append(words[wid])
             else:
                 if cur_type:
                     entities.setdefault(cur_type, []).append(" ".join(cur_words))
-                cur_type, cur_words = None, []
+                cur_type = tag[2:] if tag.startswith("B-") else None
+                cur_words = [words[wid]] if cur_type else []
         if cur_type:
             entities.setdefault(cur_type, []).append(" ".join(cur_words))
 
@@ -375,38 +517,37 @@ def train():
     print(f"Train: {len(train_ds)} | Val: {len(val_ds)} | Test: {len(test_ds)}")
 
     # Model
-    model = WorkoutNLUModel(CFG.model_name, num_intents, num_slot_labels).to(device)
+    model = WorkoutNLUModel(CFG.model_name, num_intents, num_slot_labels, CFG.dropout).to(device)
     print(f"Parametri: {sum(p.numel() for p in model.parameters()):,}")
 
-    # Optimizer con learning rate differenziato backbone / heads
-    optimizer = AdamW([
-        {"params": model.roberta.parameters(),     "lr": CFG.learning_rate},
-        {"params": model.intent_head.parameters(), "lr": CFG.learning_rate * 5},
-        {"params": model.slot_head.parameters(),   "lr": CFG.learning_rate * 5},
-    ], weight_decay=CFG.weight_decay)
+    # Optimizer LLRD
+    optimizer = build_optimizer(model, CFG.learning_rate, CFG.weight_decay, CFG.llrd_decay)
 
-    total_steps  = len(train_loader) * CFG.num_epochs
-    warmup_steps = int(total_steps * CFG.warmup_ratio)
-    scheduler    = get_linear_schedule_with_warmup(optimizer, warmup_steps, total_steps)
+    # Cosine LR schedule con warmup
+    # Nota: gli step sono effettivi (dopo accumulazione)
+    effective_steps = (len(train_loader) // CFG.accum_steps) * CFG.num_epochs
+    warmup_steps    = int(effective_steps * CFG.warmup_ratio)
+    scheduler = get_cosine_schedule_with_warmup(optimizer, warmup_steps, effective_steps)
 
-    # ── CLASS WEIGHTS per slot loss (penalizza il tag O) ─────────────────────────
-    # Contiamo le frequenze dei tag nel training set per dare più peso ai tag rari
+    # Class weights per intent loss (tag O molto più frequente degli altri)
     tag_counts = torch.zeros(num_slot_labels)
     for sample in train_ds:
         for t in sample["ner_labels"].tolist():
             if t != -100:
                 tag_counts[t] += 1
     total_tokens = tag_counts.sum()
-    # weight[c] = total / (n_classi * count[c]) — classi rare pesano di più
     slot_weights = (total_tokens / (num_slot_labels * tag_counts.clamp(min=1))).to(device)
-    print(f"Slot class weights: { {id2tag[i]: f'{slot_weights[i].item():.2f}' for i in range(num_slot_labels)} }")
+    print("Slot class weights:")
+    for i in range(num_slot_labels):
+        print(f"  {id2tag[i]:8s} → {slot_weights[i].item():.2f}  (count={int(tag_counts[i])})")
 
+    # Intent: label smoothing (le classi sono bilanciate, non serve class weight)
     intent_criterion = nn.CrossEntropyLoss(label_smoothing=CFG.label_smoothing)
-    slot_criterion   = nn.CrossEntropyLoss(ignore_index=-100, weight=slot_weights, label_smoothing=CFG.label_smoothing)
-    scaler           = torch.amp.GradScaler("cuda", enabled=use_fp16)
+    scaler = torch.amp.GradScaler("cuda", enabled=use_fp16)
 
     print(f"\n{'='*60}")
-    print(f"Training {CFG.num_epochs} epochs | batch {CFG.batch_size} | fp16={use_fp16}")
+    print(f"Training {CFG.num_epochs} epochs | batch {CFG.batch_size} "
+          f"(eff. {CFG.batch_size * CFG.accum_steps}) | fp16={use_fp16}")
     print(f"{'='*60}\n")
 
     best_combined    = 0.0
@@ -415,9 +556,8 @@ def train():
 
     # ── RESUME DA DRIVE ──────────────────────────────────────────────────────────
     resume_path_drive = os.path.join(CFG.drive_output, "resume_ckpt.pt")
-    resume_path_local = os.path.join(CFG.output_dir, "resume_ckpt.pt")
+    resume_path_local = os.path.join(CFG.output_dir,   "resume_ckpt.pt")
 
-    # Preferisce Drive (sopravvive al reset Colab), poi local
     for rp in [resume_path_drive, resume_path_local]:
         if os.path.exists(rp):
             print(f"\nResume checkpoint trovato: {rp}")
@@ -434,10 +574,12 @@ def train():
                 shutil.copy2(rp, resume_path_local)
             break
 
+    # ── TRAINING LOOP ────────────────────────────────────────────────────────────
     for epoch in range(start_epoch, CFG.num_epochs + 1):
         model.train()
         loss_i_tot = loss_s_tot = 0.0
         t0 = time.time()
+        optimizer.zero_grad()
 
         for step, batch in enumerate(train_loader, 1):
             ids  = batch["input_ids"].to(device)
@@ -445,20 +587,31 @@ def train():
             il   = batch["intent_label"].to(device)
             nl   = batch["ner_labels"].to(device)
 
-            optimizer.zero_grad()
-
             with torch.amp.autocast("cuda", enabled=use_fp16):
-                int_log, slot_log = model(ids, mask)
+                int_log, emissions = model(ids, mask)
+
+                # Intent loss
                 loss_i = intent_criterion(int_log, il)
-                loss_s = slot_criterion(slot_log.view(-1, num_slot_labels), nl.view(-1))
-                loss   = CFG.intent_weight * loss_i + CFG.slot_weight * loss_s
+
+                # CRF loss: maschera posizioni -100, sostituisce con 0 (ignorato dalla maschera)
+                crf_mask = (nl != -100).bool()
+                crf_tags = nl.clone()
+                crf_tags[~crf_mask] = 0
+                loss_s = model.crf_loss(emissions, crf_tags, crf_mask)
+
+                # Scala per gradient accumulation
+                loss = (CFG.intent_weight * loss_i + CFG.slot_weight * loss_s) / CFG.accum_steps
 
             scaler.scale(loss).backward()
-            scaler.unscale_(optimizer)
-            nn.utils.clip_grad_norm_(model.parameters(), CFG.grad_clip)
-            scaler.step(optimizer)
-            scaler.update()
-            scheduler.step()
+
+            # Optimizer step ogni accum_steps batch (o all'ultimo step)
+            if step % CFG.accum_steps == 0 or step == len(train_loader):
+                scaler.unscale_(optimizer)
+                nn.utils.clip_grad_norm_(model.parameters(), CFG.grad_clip)
+                scaler.step(optimizer)
+                scaler.update()
+                scheduler.step()
+                optimizer.zero_grad()
 
             loss_i_tot += loss_i.item()
             loss_s_tot += loss_s.item()
@@ -472,7 +625,7 @@ def train():
         print(f"\nEpoch {epoch:2d} — li={loss_i_tot/len(train_loader):.4f} "
               f"ls={loss_s_tot/len(train_loader):.4f} — {elapsed:.1f}s")
 
-        metrics = evaluate(model, val_loader, device, id2intent, id2tag, tag2id)
+        metrics = evaluate(model, val_loader, device, id2intent, id2tag)
         print(f"         Val -> intent_acc={metrics['intent_acc']:.4f} "
               f"slot_f1={metrics['slot_f1']:.4f} combined={metrics['combined']:.4f}")
 
@@ -494,7 +647,7 @@ def train():
                 print(f"\nEarly stopping a epoch {epoch}")
                 break
 
-        # ── SALVA RESUME CHECKPOINT (locale + Drive) ─────────────────────────────
+        # ── RESUME CHECKPOINT (locale + Drive ogni epoch) ─────────────────────
         resume_state = {
             "epoch":            epoch,
             "model_state":      model.state_dict(),
@@ -510,7 +663,6 @@ def train():
         if os.path.exists("/content/drive"):
             os.makedirs(CFG.drive_output, exist_ok=True)
             shutil.copy2(resume_path_local, resume_path_drive)
-            # Copia anche il best_model su Drive ad ogni epoch
             best_src = os.path.join(CFG.output_dir, "best_model.pt")
             if os.path.exists(best_src):
                 shutil.copy2(best_src, os.path.join(CFG.drive_output, "best_model.pt"))
@@ -518,11 +670,15 @@ def train():
 
         print()
 
-    # Test finale
+    # ── TEST FINALE con report per entity type ────────────────────────────────
     print("=" * 60)
-    ckpt = torch.load(os.path.join(CFG.output_dir, "best_model.pt"), map_location=device, weights_only=False)
+    ckpt = torch.load(
+        os.path.join(CFG.output_dir, "best_model.pt"),
+        map_location=device, weights_only=False,
+    )
     model.load_state_dict(ckpt["model_state"])
-    tm = evaluate(model, test_loader, device, id2intent, id2tag, tag2id)
+    print("Test — per-entity report:")
+    tm = evaluate(model, test_loader, device, id2intent, id2tag, verbose=True)
     print(f"Test -> intent_acc={tm['intent_acc']:.4f} slot_f1={tm['slot_f1']:.4f} combined={tm['combined']:.4f}")
 
     with open(os.path.join(CFG.output_dir, "results.json"), "w") as f:
@@ -549,7 +705,6 @@ if __name__ == "__main__":
     install_deps()
     mount_drive()
 
-    # Se il dataset non esiste, generalo
     if not os.path.exists("data/train.json"):
         print("Dataset non trovato, genero...")
         import subprocess
