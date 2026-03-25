@@ -47,7 +47,7 @@ class TrainConfig:
     data_dir:          str   = "data"
     output_dir:        str   = "output/workout_nlu"
     max_length:        int   = 64        # frasi vocali brevi, 64 è sufficiente
-    batch_size:        int   = 32        # RX6600 8GB: 32 safe con fp16
+    batch_size:        int   = 8         # DirectML/CPU: 8 per evitare OOM
     num_epochs:        int   = 15
     learning_rate:     float = 2e-5
     weight_decay:      float = 0.01
@@ -342,8 +342,8 @@ def train():
     intent_criterion = nn.CrossEntropyLoss()
     slot_criterion   = nn.CrossEntropyLoss(ignore_index=-100)
 
-    # ── fp16 scaler (ROCm supporta GradScaler come CUDA) ────────────────────────
-    scaler = torch.cuda.amp.GradScaler(enabled=CFG.use_fp16)
+    # ── fp16 scaler ─────────────────────────────────────────────────────────────
+    scaler = torch.amp.GradScaler("cpu", enabled=False)  # disabilitato su DirectML/CPU
 
     # ── Training loop ───────────────────────────────────────────────────────────
     best_combined = 0.0
@@ -368,21 +368,18 @@ def train():
 
             optimizer.zero_grad()
 
-            with torch.cuda.amp.autocast(enabled=CFG.use_fp16):
-                intent_logits, slot_logits = model(input_ids, attention_mask)
+            intent_logits, slot_logits = model(input_ids, attention_mask)
 
-                loss_intent = intent_criterion(intent_logits, intent_labels)
-                loss_slot   = slot_criterion(
-                    slot_logits.view(-1, num_slot_labels),
-                    ner_labels.view(-1),
-                )
-                loss = CFG.intent_weight * loss_intent + CFG.slot_weight * loss_slot
+            loss_intent = intent_criterion(intent_logits, intent_labels)
+            loss_slot   = slot_criterion(
+                slot_logits.view(-1, num_slot_labels),
+                ner_labels.view(-1),
+            )
+            loss = CFG.intent_weight * loss_intent + CFG.slot_weight * loss_slot
 
-            scaler.scale(loss).backward()
-            scaler.unscale_(optimizer)
+            loss.backward()
             nn.utils.clip_grad_norm_(model.parameters(), CFG.grad_clip)
-            scaler.step(optimizer)
-            scaler.update()
+            optimizer.step()
             scheduler.step()
 
             epoch_loss_intent += loss_intent.item()
