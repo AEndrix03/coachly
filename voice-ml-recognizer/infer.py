@@ -16,7 +16,7 @@ File necessari:
     data/label_maps.json
 """
 
-import sys, json, argparse
+import os, sys, json, argparse
 import numpy as np
 
 MAX_LENGTH = 96
