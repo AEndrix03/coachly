@@ -45,17 +45,18 @@ class CFG:
     data_dir:        str   = "data"
     output_dir:      str   = "output/workout_nlu"
     drive_output:    str   = "/content/drive/MyDrive/coachly_nlu"  # dove salvare su Drive
-    max_length:      int   = 64
+    max_length:      int   = 96    # 64 troppo corto per frasi con 3-4 esercizi in catena
     batch_size:      int   = 32    # T4 regge 32 con fp16
-    num_epochs:      int   = 15
+    num_epochs:      int   = 20
     learning_rate:   float = 2e-5
     weight_decay:    float = 0.01
     warmup_ratio:    float = 0.1
+    label_smoothing: float = 0.1   # evita overconfidence, migliora generalizzazione
     intent_weight:   float = 1.0
-    slot_weight:     float = 1.0
+    slot_weight:     float = 2.0   # slot più difficili degli intent → più peso
     grad_clip:       float = 1.0
     seed:            int   = 42
-    patience:        int   = 4
+    patience:        int   = 6
     log_every_steps: int   = 50
 
 # ─── LABEL MAPS ─────────────────────────────────────────────────────────────────
@@ -92,6 +93,14 @@ class WorkoutNLUDataset(Dataset):
         self.intent2id  = intent2id
         self.tag2id     = tag2id
         self.max_length = max_length
+
+        # Conta quante frasi vengono troncate (utile per scegliere max_length)
+        truncated = sum(
+            1 for ex in self.examples
+            if len(tokenizer(ex["words"], is_split_into_words=True)["input_ids"]) > max_length
+        )
+        if truncated:
+            print(f"  ⚠ {path}: {truncated}/{len(self.examples)} frasi troncate a {max_length} token")
 
     def __len__(self):
         return len(self.examples)
@@ -380,8 +389,20 @@ def train():
     warmup_steps = int(total_steps * CFG.warmup_ratio)
     scheduler    = get_linear_schedule_with_warmup(optimizer, warmup_steps, total_steps)
 
-    intent_criterion = nn.CrossEntropyLoss()
-    slot_criterion   = nn.CrossEntropyLoss(ignore_index=-100)
+    # ── CLASS WEIGHTS per slot loss (penalizza il tag O) ─────────────────────────
+    # Contiamo le frequenze dei tag nel training set per dare più peso ai tag rari
+    tag_counts = torch.zeros(num_slot_labels)
+    for sample in train_ds:
+        for t in sample["ner_labels"].tolist():
+            if t != -100:
+                tag_counts[t] += 1
+    total_tokens = tag_counts.sum()
+    # weight[c] = total / (n_classi * count[c]) — classi rare pesano di più
+    slot_weights = (total_tokens / (num_slot_labels * tag_counts.clamp(min=1))).to(device)
+    print(f"Slot class weights: { {id2tag[i]: f'{slot_weights[i].item():.2f}' for i in range(num_slot_labels)} }")
+
+    intent_criterion = nn.CrossEntropyLoss(label_smoothing=CFG.label_smoothing)
+    slot_criterion   = nn.CrossEntropyLoss(ignore_index=-100, weight=slot_weights, label_smoothing=CFG.label_smoothing)
     scaler           = torch.amp.GradScaler("cuda", enabled=use_fp16)
 
     print(f"\n{'='*60}")
