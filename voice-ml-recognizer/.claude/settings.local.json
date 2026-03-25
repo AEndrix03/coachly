@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python generate-dataset.py)"
+      "Bash(python generate-dataset.py)",
+      "Bash(python -c \"import torch; print\\(torch.__version__\\)\")"
     ]
   }
 }

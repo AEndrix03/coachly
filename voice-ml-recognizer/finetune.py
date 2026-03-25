@@ -269,8 +269,14 @@ def train():
         print(f"GPU: {torch.cuda.get_device_name(0)}")
         print(f"VRAM: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
     else:
-        device = torch.device("cpu")
-        print("ATTENZIONE: GPU non trovata, training su CPU")
+        try:
+            import torch_directml
+            device = torch_directml.device()
+            print("GPU: AMD RX 6600 via DirectML")
+            CFG.use_fp16 = False  # DirectML non supporta fp16
+        except ImportError:
+            device = torch.device("cpu")
+            print("ATTENZIONE: GPU non trovata, training su CPU")
 
     # ── Label maps ──────────────────────────────────────────────────────────────
     intent2id, id2intent, tag2id, id2tag = load_label_maps(
