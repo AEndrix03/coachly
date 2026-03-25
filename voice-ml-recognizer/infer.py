@@ -56,7 +56,9 @@ class TorchBackend:
                 super().__init__()
                 # Carica solo la configurazione (architettura), NON i pesi da HuggingFace.
                 # I pesi sono già nel checkpoint — evita il download da 1.1 GB.
-                config       = XLMRobertaConfig.from_pretrained(MODEL_NAME)
+                # eager: disabilita SDPA (Flash Attention) per compatibilità ONNX export.
+                config = XLMRobertaConfig.from_pretrained(MODEL_NAME)
+                config._attn_implementation = "eager"
                 self.roberta = XLMRobertaModel(config)
                 hidden       = config.hidden_size
                 self.intent_attn = nn.Linear(hidden, 1)
