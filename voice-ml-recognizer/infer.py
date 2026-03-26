@@ -63,9 +63,9 @@ def _build_model(num_intents, num_slot_labels):
     class WorkoutNLUModel(nn.Module):
         def __init__(self):
             super().__init__()
-            config = XLMRobertaConfig.from_pretrained(
-                TOKENIZER_DIR if os.path.isdir(TOKENIZER_DIR) else MODEL_NAME
-            )
+            # Usa sempre MODEL_NAME per la config — TOKENIZER_DIR contiene solo
+            # i file del tokenizer, non la config dell'architettura RoBERTa.
+            config = XLMRobertaConfig.from_pretrained(MODEL_NAME)
             # eager: evita SDPA (Flash Attention) — necessario per export ONNX
             config._attn_implementation = "eager"
             # I pesi RoBERTa vengono dal checkpoint, non da HuggingFace
