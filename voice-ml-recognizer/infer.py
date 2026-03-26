@@ -222,6 +222,24 @@ def _print_result(text, r):
 
 # ─── EXPORT PT → ONNX ────────────────────────────────────────────────────────
 
+def _verify_onnx(onnx_path, tokenizer):
+    """Verifica che l'ONNX produca output non-NaN su una frase di test."""
+    import onnxruntime as ort
+    sess  = ort.InferenceSession(onnx_path, providers=["CPUExecutionProvider"])
+    dummy = tokenizer(
+        ["add bench press 3 sets 10 reps"],
+        is_split_into_words=False, max_length=MAX_LENGTH,
+        padding="max_length", truncation=True, return_tensors="np",
+    )
+    out = sess.run(None, {
+        "input_ids":      dummy["input_ids"].astype(np.int64),
+        "attention_mask": dummy["attention_mask"].astype(np.int64),
+    })
+    if np.isnan(out[0]).any():
+        return False, out[0]
+    return True, out[0]
+
+
 def export_to_onnx(pt_path, onnx_path=None):
     import torch, torch.nn as nn
 
@@ -237,54 +255,81 @@ def export_to_onnx(pt_path, onnx_path=None):
         def __init__(self, m): super().__init__(); self.m = m
         def forward(self, ids, mask): return self.m(ids, mask)
 
-    dummy = backend.tokenizer(
+    export_model = _NoCRF(model)
+    dummy_pt = backend.tokenizer(
         ["add bench press 3 sets 10 reps"],
-        is_split_into_words=False,
-        max_length=MAX_LENGTH, padding="max_length",
-        truncation=True, return_tensors="pt",
+        is_split_into_words=False, max_length=MAX_LENGTH,
+        padding="max_length", truncation=True, return_tensors="pt",
     )
 
-    print(f"Esporto ONNX → {onnx_path}")
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")   # silenzia TracerWarning durante export
-        with torch.no_grad():
-            torch.onnx.export(
-                _NoCRF(model),
-                args=(dummy["input_ids"], dummy["attention_mask"]),
-                f=onnx_path,
-                input_names=["input_ids", "attention_mask"],
-                output_names=["intent_logits", "slot_emissions"],
-                dynamic_axes={
-                    "input_ids":      {0: "batch"},
-                    "attention_mask": {0: "batch"},
-                    "intent_logits":  {0: "batch"},
-                    "slot_emissions": {0: "batch"},
-                },
-                opset_version=14,   # 14 più stabile di 17 per transformers
-            )
-    print(f"  {onnx_path} ({os.path.getsize(onnx_path)/1e6:.0f} MB)")
+    # ── Tenta export con la nuova API dynamo (PyTorch 2.x) ───────────────────
+    # Gestisce meglio i transformer moderni rispetto al legacy torch.onnx.export
+    exported = False
+    if hasattr(torch.onnx, "dynamo_export"):
+        try:
+            print(f"Esporto ONNX (dynamo) → {onnx_path}")
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                prog = torch.onnx.dynamo_export(
+                    export_model,
+                    dummy_pt["input_ids"],
+                    dummy_pt["attention_mask"],
+                )
+            prog.save(onnx_path)
+            ok, logits = _verify_onnx(onnx_path, backend.tokenizer)
+            if ok:
+                print(f"  dynamo OK — logits: {logits[0].round(3)}")
+                exported = True
+            else:
+                print("  dynamo: output NaN, tento metodo legacy...")
+                os.remove(onnx_path)
+        except Exception as e:
+            print(f"  dynamo fallito ({e}), tento metodo legacy...")
 
-    # Verifica che il modello ONNX produca output sani
-    print("  Verifica output ONNX...")
-    import onnxruntime as ort
-    sess = ort.InferenceSession(onnx_path, providers=["CPUExecutionProvider"])
-    out  = sess.run(None, {
-        "input_ids":      dummy["input_ids"].numpy().astype(np.int64),
-        "attention_mask": dummy["attention_mask"].numpy().astype(np.int64),
-    })
-    if np.isnan(out[0]).any():
-        print("  ATTENZIONE: output contiene NaN — l'ONNX potrebbe non funzionare")
-    else:
-        print(f"  Output OK — intent logits: {out[0][0].round(3)}")
+    # ── Fallback: legacy torch.onnx.export ───────────────────────────────────
+    if not exported:
+        print(f"Esporto ONNX (legacy opset 14) → {onnx_path}")
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            with torch.no_grad():
+                torch.onnx.export(
+                    export_model,
+                    args=(dummy_pt["input_ids"], dummy_pt["attention_mask"]),
+                    f=onnx_path,
+                    input_names=["input_ids", "attention_mask"],
+                    output_names=["intent_logits", "slot_emissions"],
+                    dynamic_axes={
+                        "input_ids":      {0: "batch"},
+                        "attention_mask": {0: "batch"},
+                        "intent_logits":  {0: "batch"},
+                        "slot_emissions": {0: "batch"},
+                    },
+                    opset_version=14,
+                )
+        ok, logits = _verify_onnx(onnx_path, backend.tokenizer)
+        if ok:
+            print(f"  legacy OK — logits: {logits[0].round(3)}")
+        else:
+            print("  ERRORE: entrambi i metodi producono NaN.")
+            print("  Il modello ONNX non funzionerà — usa --model best_model.pt")
+            os.remove(onnx_path)
+            return None
+
+    print(f"  {onnx_path} ({os.path.getsize(onnx_path)/1e6:.0f} MB)")
 
     try:
         from onnxruntime.quantization import quantize_dynamic, QuantType
         quantize_dynamic(onnx_path, int8_path, weight_type=QuantType.QInt8)
-        print(f"  {int8_path} ({os.path.getsize(int8_path)/1e6:.0f} MB)  ← usa questo")
-        return int8_path
+        ok, _ = _verify_onnx(int8_path, backend.tokenizer)
+        if ok:
+            print(f"  {int8_path} ({os.path.getsize(int8_path)/1e6:.0f} MB)  ← usa questo")
+            return int8_path
+        else:
+            print("  int8 NaN — uso float32")
+            os.remove(int8_path)
     except Exception as e:
         print(f"  Quantizzazione saltata: {e}")
-        return onnx_path
+    return onnx_path
 
 # ─── MAIN ─────────────────────────────────────────────────────────────────────
 
