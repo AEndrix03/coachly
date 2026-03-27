@@ -13,9 +13,7 @@ BASE_MODEL  = "Qwen/Qwen2.5-0.5B-Instruct"
 DEVICE      = "cuda" if torch.cuda.is_available() else "cpu"
 
 SYSTEM = (
-    "You are Coachly NLU. Output ONLY valid JSON, no markdown:\n"
-    '{"action":"ADD_EXERCISE"|"LOG_SET"|"UPDATE_SET"|"DELETE_EXERCISE"|"UNKNOWN",'
-    '"exercises":[{"name":str,"sets":int|null,"reps":int|null,"weight":float|null,"unit":str|null,"modifier":str|null}]}'
+    "You are Coachly NLU. Convert workout speech-to-text into strict JSON.\nReturn ONLY valid JSON, no markdown.\nSchema:\n{\n  \"action\": \"ADD_EXERCISE|LOG_SET|UPDATE_SET|DELETE_EXERCISE|UNKNOWN\",\n  \"items\": [\n    {\n      \"exercise\": string,\n      \"sets\": integer|null,\n      \"reps\": integer|null,\n      \"weight\": number|null,\n      \"unit\": \"kg\"|\"lbs\"|null,\n      \"modifier\": \"to_failure\"|\"dropset\"|\"superset\"|\"amrap\"|\"pause\"|null\n    }\n  ]\n}"
 )
 
 print(f"Loading on {DEVICE}...")
@@ -32,7 +30,7 @@ ids = tokenizer(prompt, return_tensors="pt").input_ids.to(DEVICE)
 with torch.no_grad():
     out = model.generate(
         input_ids=ids,
-        max_new_tokens=150,
+        max_new_tokens=1500,
         do_sample=False,
         pad_token_id=tokenizer.eos_token_id,
     )
