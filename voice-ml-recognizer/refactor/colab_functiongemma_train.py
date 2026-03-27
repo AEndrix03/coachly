@@ -59,6 +59,7 @@ VALID_ACTIONS = {"ADD_EXERCISE", "LOG_SET", "UPDATE_SET", "DELETE_EXERCISE", "UN
 @dataclass
 class TrainConfig:
     data_dir: str = "refactor/data"
+    train_file: str = "train.jsonl"   # override to use augmented file, e.g. train_aug.jsonl
     output_dir: str = "refactor/output/functiongemma_qlora"
     base_model: str = ""
     max_seq_len: int = 512
@@ -105,10 +106,10 @@ def resolve_model_id(requested: str, hf_token: str = "") -> str:
     return DEFAULT_MODEL_CANDIDATES[1]
 
 
-def load_jsonl_splits(data_dir: str) -> DatasetDict:
+def load_jsonl_splits(data_dir: str, train_file: str = "train.jsonl") -> DatasetDict:
     data_dir_path = Path(data_dir)
     files = {
-        "train": str(data_dir_path / "train.jsonl"),
+        "train": str(data_dir_path / train_file),
         "validation": str(data_dir_path / "val.jsonl"),
         "test": str(data_dir_path / "test.jsonl"),
     }
@@ -228,7 +229,7 @@ def train(cfg: TrainConfig) -> None:
     base_model = resolve_model_id(cfg.base_model, cfg.hf_token)
     print(f"Base model: {base_model}")
     print("Loading dataset...")
-    ds_raw = load_jsonl_splits(cfg.data_dir)
+    ds_raw = load_jsonl_splits(cfg.data_dir, cfg.train_file)
     print(ds_raw)
 
     model, tokenizer = build_model_and_tokenizer(base_model, cfg.hf_token)
@@ -389,7 +390,8 @@ def save_merged_model(base_model: str, adapter_dir: Path, out_dir: Path, hf_toke
 
 def parse_args() -> TrainConfig:
     p = argparse.ArgumentParser()
-    p.add_argument("--data_dir", type=str, default="refactor/data")
+    p.add_argument("--data_dir",    type=str, default="refactor/data")
+    p.add_argument("--train_file",  type=str, default="train.jsonl", help="Train split filename inside data_dir (e.g. train_aug.jsonl)")
     p.add_argument("--output_dir", type=str, default="refactor/output/functiongemma_qlora")
     p.add_argument("--base_model", type=str, default="")
     p.add_argument("--max_seq_len", type=int, default=512)
@@ -407,6 +409,7 @@ def parse_args() -> TrainConfig:
     a = p.parse_args()
     return TrainConfig(
         data_dir=a.data_dir,
+        train_file=a.train_file,
         output_dir=a.output_dir,
         base_model=a.base_model,
         max_seq_len=a.max_seq_len,
