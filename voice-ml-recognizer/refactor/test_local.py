@@ -41,9 +41,8 @@ raw = tokenizer.decode(out[0][ids.shape[-1]:], skip_special_tokens=True).strip()
 raw = re.sub(r'^```(?:json)?\s*|\s*```$', '', raw)
 
 try:
-    result = json.loads(raw)
+    result, _ = json.JSONDecoder().raw_decode(raw)
 except Exception:
-    m = re.search(r'\{.*\}', raw, re.DOTALL)
-    result = json.loads(m.group(0)) if m else {"_raw": raw}
+    result = {"_raw": raw}
 
 print(json.dumps(result, ensure_ascii=False, indent=2))
