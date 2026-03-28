@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
 """
-train_local_rocm.py — Local training for Coachly NLU on AMD GPU (Windows/ROCm)
+train_local_rocm.py — Local training for Coachly NLU on AMD GPU (Windows + DirectML)
 
-Supporta due backend AMD su Windows:
-  - ROCm (HIP SDK): torch.cuda con HSA_OVERRIDE_GFX_VERSION=10.3.0
-  - DirectML:       torch_directml (fallback se ROCm non disponibile)
-
-Nessun bitsandbytes / quantizzazione (non serve per 0.5B, evita problemi ROCm).
-LoRA in fp16 + gradient checkpointing: ~4-5 GB VRAM, ok per RX 6600 8GB.
+Usa un training loop manuale per forzare l'uso del device DirectML (privateuseone:0),
+perche' HF Trainer non supporta nativamento DirectML e cadrebbe su CPU.
 
 Usage:
   python train_local_rocm.py
@@ -18,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import re
 import time
@@ -25,42 +22,37 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict
 
-# ── GPU backend detection ─────────────────────────────────────────────────────
-# RX 6600 = gfx1032: ROCm lo tratta come gfx1030 con questo override
-os.environ.setdefault("HSA_OVERRIDE_GFX_VERSION", "10.3.0")
-
 import torch
 
-_USE_DML = False
-_DEVICE  = "cpu"
+# ── GPU detection ─────────────────────────────────────────────────────────────
+
+os.environ.setdefault("HSA_OVERRIDE_GFX_VERSION", "10.3.0")
+
+_DEVICE = None
 
 if torch.cuda.is_available():
-    _DEVICE = "cuda"
-    print(f"[GPU] ROCm/CUDA: {torch.cuda.get_device_name(0)} "
+    _DEVICE = torch.device("cuda")
+    print(f"[GPU] ROCm/CUDA  : {torch.cuda.get_device_name(0)} "
           f"({torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB)")
 else:
     try:
-        import torch_directml
-        _DEVICE  = torch_directml.device()
-        _USE_DML = True
-        print(f"[GPU] DirectML: {torch_directml.device_name(0)}")
-    except ImportError:
-        print("[WARNING] Nessuna GPU rilevata — training su CPU (lento).")
-        print("  Esegui: python setup_windows_gpu.ps1  (oppure: setup_windows_gpu.bat)")
+        import torch_directml as dml
+        _DEVICE = dml.device()
+        print(f"[GPU] DirectML   : {dml.device_name(0)}")
+        # Smoke test
+        _ = torch.ones(2, 2).to(_DEVICE) + torch.ones(2, 2).to(_DEVICE)
+        print("[GPU] Smoke test : OK")
+    except Exception as e:
+        print(f"[ERROR] Nessuna GPU trovata: {e}")
+        print("  Esegui setup_windows_gpu.ps1 per installare le dipendenze GPU.")
+        raise SystemExit(1)
 
-assert str(_DEVICE) != "cpu", (
-    "GPU non trovata. Esegui prima setup_windows_gpu.ps1 per installare le dipendenze GPU."
-)
-
-from datasets import DatasetDict, load_dataset
+from datasets import load_dataset
 from peft import LoraConfig, TaskType, get_peft_model
-from transformers import (
-    AutoModelForCausalLM,
-    AutoTokenizer,
-    DataCollatorForSeq2Seq,
-    Trainer,
-    TrainingArguments,
-)
+from torch.optim import AdamW
+from torch.optim.lr_scheduler import CosineAnnealingLR
+from torch.utils.data import DataLoader
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 # ── Config ────────────────────────────────────────────────────────────────────
 
@@ -87,10 +79,9 @@ class TrainConfig:
     max_seq_len:  int   = 512
     num_epochs:   int   = 5
     lr:           float = 2e-4
-    warmup_ratio: float = 0.05
-    train_batch:  int   = 4    # riduci a 2 se OOM
-    eval_batch:   int   = 4
-    grad_accum:   int   = 4    # effective batch = 16
+    warmup_steps: int   = 200
+    train_batch:  int   = 2    # per step; riduci a 1 se OOM
+    grad_accum:   int   = 8    # effective batch = 16
     weight_decay: float = 0.01
     lora_r:       int   = 16
     lora_alpha:   int   = 32
@@ -98,11 +89,12 @@ class TrainConfig:
     seed:         int   = 42
     eval_samples: int   = 200
     save_merged:  bool  = False
+    log_every:    int   = 50   # steps
 
 
 # ── Data loading ──────────────────────────────────────────────────────────────
 
-def load_splits(cfg: TrainConfig) -> DatasetDict:
+def load_splits(cfg: TrainConfig):
     d = Path(cfg.data_dir)
     files = {
         "train":      str(d / cfg.train_file),
@@ -150,30 +142,28 @@ def build_tokenize_fn(tokenizer, max_len: int):
     return tokenize
 
 
-# ── Model & LoRA setup ────────────────────────────────────────────────────────
+def collate_fn(batch):
+    return {
+        "input_ids":      torch.tensor([x["input_ids"]      for x in batch], dtype=torch.long),
+        "attention_mask": torch.tensor([x["attention_mask"] for x in batch], dtype=torch.long),
+        "labels":         torch.tensor([x["labels"]         for x in batch], dtype=torch.long),
+    }
+
+
+# ── Model setup ───────────────────────────────────────────────────────────────
 
 def load_model_and_tokenizer(cfg: TrainConfig):
-    # DirectML non supporta device_map="auto" — carichiamo su CPU poi spostiamo
-    if _USE_DML:
-        dtype      = torch.float32   # DirectML non supporta fp16 per training
-        device_arg = "cpu"
-    else:
-        dtype      = torch.float16
-        device_arg = "cuda"
-
     tokenizer = AutoTokenizer.from_pretrained(cfg.base_model, use_fast=True)
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token_id = tokenizer.eos_token_id
 
+    print("  Carico base model su CPU...")
     model = AutoModelForCausalLM.from_pretrained(
         cfg.base_model,
-        dtype=dtype,
-        device_map=device_arg,
+        torch_dtype=torch.float32,  # DirectML richiede fp32
+        low_cpu_mem_usage=True,
     )
-    model.config.use_cache = False  # richiesto da gradient checkpointing
-
-    if _USE_DML:
-        model = model.to(_DEVICE)
+    model.config.use_cache = False
 
     lora_cfg = LoraConfig(
         task_type=TaskType.CAUSAL_LM,
@@ -186,23 +176,50 @@ def load_model_and_tokenizer(cfg: TrainConfig):
     )
     model = get_peft_model(model, lora_cfg)
     model.print_trainable_parameters()
+
+    print(f"  Sposto il modello su {_DEVICE}...")
+    model = model.to(_DEVICE)
     return model, tokenizer
 
 
-# ── Quick eval ────────────────────────────────────────────────────────────────
+# ── Learning rate schedule ────────────────────────────────────────────────────
 
-def quick_eval(model, tokenizer, ds_test, cfg: TrainConfig) -> Dict:
-    device = next(model.parameters()).device
+def get_lr(step: int, warmup: int, max_steps: int, max_lr: float, min_lr: float = 1e-5) -> float:
+    if step < warmup:
+        return max_lr * step / max(warmup, 1)
+    progress = (step - warmup) / max(max_steps - warmup, 1)
+    return min_lr + 0.5 * (max_lr - min_lr) * (1 + math.cos(math.pi * progress))
+
+
+# ── Eval ──────────────────────────────────────────────────────────────────────
+
+def eval_loss(model, loader_val, device) -> float:
+    model.eval()
+    total_loss = 0.0
+    n = 0
+    with torch.no_grad():
+        for batch in loader_val:
+            ids   = batch["input_ids"].to(device)
+            attn  = batch["attention_mask"].to(device)
+            lbls  = batch["labels"].to(device)
+            out   = model(input_ids=ids, attention_mask=attn, labels=lbls)
+            total_loss += out.loss.item()
+            n += 1
+    model.train()
+    return total_loss / max(n, 1)
+
+
+def quick_eval_accuracy(model, tokenizer, ds_test, cfg: TrainConfig) -> Dict:
     model.eval()
     samples = ds_test.select(range(min(cfg.eval_samples, len(ds_test))))
+    correct = total = json_ok = 0
 
-    correct_action = total = json_ok = 0
     for ex in samples:
         msgs = ex["messages"]
         prompt = tokenizer.apply_chat_template(
             msgs[:-1], tokenize=False, add_generation_prompt=True
         )
-        ids = tokenizer(prompt, return_tensors="pt").input_ids.to(device)
+        ids = tokenizer(prompt, return_tensors="pt").input_ids.to(_DEVICE)
         with torch.no_grad():
             out = model.generate(
                 input_ids=ids, max_new_tokens=200, do_sample=False,
@@ -214,99 +231,144 @@ def quick_eval(model, tokenizer, ds_test, cfg: TrainConfig) -> Dict:
             pred, _ = json.JSONDecoder().raw_decode(raw)
             json_ok += 1
             if pred.get("action") == ex["action"]:
-                correct_action += 1
+                correct += 1
         except Exception:
             pass
         total += 1
 
     result = {
         "total":          total,
-        "action_acc":     round(correct_action / total, 4) if total else 0,
+        "action_acc":     round(correct / total, 4) if total else 0,
         "json_valid_pct": round(json_ok / total, 4) if total else 0,
     }
-    print(f"\nQuick eval ({total} campioni): action_acc={result['action_acc']:.2%}  json_valid={result['json_valid_pct']:.2%}")
+    print(f"  action_acc={result['action_acc']:.2%}  json_valid={result['json_valid_pct']:.2%}")
+    model.train()
     return result
 
 
-# ── Training ──────────────────────────────────────────────────────────────────
+# ── Manual training loop ──────────────────────────────────────────────────────
 
 def train(cfg: TrainConfig):
-    import inspect
     torch.manual_seed(cfg.seed)
-    out = Path(cfg.output_dir)
-    out.mkdir(parents=True, exist_ok=True)
+    out_dir = Path(cfg.output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
 
-    print("\n[1/4] Carico i dati...")
+    print(f"\n[1/4] Carico i dati...")
     ds = load_splits(cfg)
     print(f"  train: {len(ds['train']):,}  val: {len(ds['validation']):,}  test: {len(ds['test']):,}")
 
-    print("\n[2/4] Carico il modello...")
+    print(f"\n[2/4] Carico il modello...")
     model, tokenizer = load_model_and_tokenizer(cfg)
 
-    print("\n[3/4] Tokenizzazione...")
+    print(f"\n[3/4] Tokenizzazione...")
     tok_fn = build_tokenize_fn(tokenizer, cfg.max_seq_len)
-    ds_tok = ds.map(
-        tok_fn, batched=True, batch_size=256,
-        remove_columns=[c for c in ds["train"].column_names if c != "messages"],
+    remove_cols = [c for c in ds["train"].column_names if c != "messages"]
+    ds_tok = ds.map(tok_fn, batched=True, batch_size=256, remove_columns=remove_cols)
+    ds_tok = ds_tok.remove_columns(["messages"])
+    ds_tok.set_format("numpy")
+
+    loader_train = DataLoader(
+        ds_tok["train"], batch_size=cfg.train_batch,
+        shuffle=True, collate_fn=collate_fn, num_workers=0,
     )
-    ds_tok.set_format("torch")
-
-    # DirectML non supporta fp16 né gradient_checkpointing stabile
-    use_fp16 = not _USE_DML and torch.cuda.is_available()
-    use_gc   = not _USE_DML
-
-    training_args = TrainingArguments(
-        output_dir=str(out / "checkpoints"),
-        num_train_epochs=cfg.num_epochs,
-        per_device_train_batch_size=cfg.train_batch,
-        per_device_eval_batch_size=cfg.eval_batch,
-        gradient_accumulation_steps=cfg.grad_accum,
-        learning_rate=cfg.lr,
-        warmup_ratio=cfg.warmup_ratio,
-        weight_decay=cfg.weight_decay,
-        fp16=use_fp16,
-        gradient_checkpointing=use_gc,
-        eval_strategy="epoch",
-        save_strategy="epoch",
-        load_best_model_at_end=True,
-        metric_for_best_model="eval_loss",
-        logging_steps=50,
-        dataloader_num_workers=0,
-        seed=cfg.seed,
-        report_to="none",
+    loader_val = DataLoader(
+        ds_tok["validation"], batch_size=cfg.train_batch * 2,
+        shuffle=False, collate_fn=collate_fn, num_workers=0,
     )
 
-    collator = DataCollatorForSeq2Seq(
-        tokenizer, model=model, padding=True, pad_to_multiple_of=8
+    optimizer = AdamW(
+        [p for p in model.parameters() if p.requires_grad],
+        lr=cfg.lr, weight_decay=cfg.weight_decay,
     )
-    trainer_kwargs = dict(
-        model=model, args=training_args,
-        train_dataset=ds_tok["train"], eval_dataset=ds_tok["validation"],
-        data_collator=collator,
-    )
-    sig = inspect.signature(Trainer.__init__).parameters
-    trainer_kwargs["processing_class" if "processing_class" in sig else "tokenizer"] = tokenizer
 
-    print(f"\n[4/4] Training (backend: {'DirectML' if _USE_DML else 'ROCm/CUDA'})...")
-    t0 = time.time()
-    Trainer(**trainer_kwargs).train()
-    elapsed = time.time() - t0
-    print(f"  Completato in {elapsed/60:.1f} min")
+    steps_per_epoch = math.ceil(len(loader_train) / cfg.grad_accum)
+    total_steps     = steps_per_epoch * cfg.num_epochs
 
-    adapter_dir = out / "adapter"
+    print(f"\n[4/4] Training ({_DEVICE}) ...")
+    print(f"  epochs={cfg.num_epochs}  steps/epoch={steps_per_epoch}  total={total_steps}")
+    print(f"  batch={cfg.train_batch}  grad_accum={cfg.grad_accum}  effective_batch={cfg.train_batch * cfg.grad_accum}")
+
+    best_val_loss  = float("inf")
+    global_step    = 0
+    t0             = time.time()
+
+    for epoch in range(1, cfg.num_epochs + 1):
+        model.train()
+        optimizer.zero_grad()
+        running_loss  = 0.0
+        accum_count   = 0
+
+        for step_in_epoch, batch in enumerate(loader_train, 1):
+            ids  = batch["input_ids"].to(_DEVICE)
+            attn = batch["attention_mask"].to(_DEVICE)
+            lbls = batch["labels"].to(_DEVICE)
+
+            out  = model(input_ids=ids, attention_mask=attn, labels=lbls)
+            loss = out.loss / cfg.grad_accum
+            loss.backward()
+
+            running_loss += out.loss.item()
+            accum_count  += 1
+
+            if accum_count == cfg.grad_accum or step_in_epoch == len(loader_train):
+                # LR schedule
+                lr_now = get_lr(global_step, cfg.warmup_steps, total_steps, cfg.lr)
+                for g in optimizer.param_groups:
+                    g["lr"] = lr_now
+
+                torch.nn.utils.clip_grad_norm_(
+                    [p for p in model.parameters() if p.requires_grad], max_norm=1.0
+                )
+                optimizer.step()
+                optimizer.zero_grad()
+
+                global_step += 1
+                accum_count  = 0
+
+                if global_step % cfg.log_every == 0:
+                    avg_loss = running_loss / cfg.log_every
+                    elapsed  = time.time() - t0
+                    eta      = elapsed / global_step * (total_steps - global_step)
+                    print(f"  epoch {epoch}/{cfg.num_epochs}  "
+                          f"step {global_step}/{total_steps}  "
+                          f"loss={avg_loss:.4f}  lr={lr_now:.2e}  "
+                          f"ETA={eta/60:.0f}min")
+                    running_loss = 0.0
+
+        # End of epoch: eval
+        val_loss = eval_loss(model, loader_val, _DEVICE)
+        elapsed  = (time.time() - t0) / 60
+        print(f"\n  [Epoch {epoch}] val_loss={val_loss:.4f}  elapsed={elapsed:.0f}min")
+
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            ckpt = out_dir / "best_adapter"
+            model.save_pretrained(str(ckpt))
+            tokenizer.save_pretrained(str(ckpt))
+            print(f"  Checkpoint salvato (val_loss={best_val_loss:.4f}): {ckpt}")
+
+    total_min = (time.time() - t0) / 60
+    print(f"\nTraining completato in {total_min:.0f} min")
+
+    # Salva adapter finale
+    adapter_dir = out_dir / "adapter"
     model.save_pretrained(str(adapter_dir))
     tokenizer.save_pretrained(str(adapter_dir))
-    print(f"  Adapter salvato in: {adapter_dir}")
+    print(f"Adapter finale: {adapter_dir}")
 
-    eval_res = quick_eval(model, tokenizer, ds["test"], cfg)
-    eval_res["train_time_min"] = round(elapsed / 60, 1)
-    (out / "eval.json").write_text(json.dumps(eval_res, indent=2))
+    # Accuracy eval
+    print(f"\nQuick eval su {cfg.eval_samples} campioni di test...")
+    eval_res = quick_eval_accuracy(model, tokenizer, ds["test"], cfg)
+    eval_res["train_time_min"]  = round(total_min, 1)
+    eval_res["best_val_loss"]   = round(best_val_loss, 4)
+    (out_dir / "eval.json").write_text(json.dumps(eval_res, indent=2))
+    print(f"Eval salvato: {out_dir / 'eval.json'}")
 
     if cfg.save_merged:
         merged = model.merge_and_unload()
-        merged.save_pretrained(str(out / "merged"))
-        tokenizer.save_pretrained(str(out / "merged"))
-        print(f"  Modello merged in: {out / 'merged'}")
+        merged.save_pretrained(str(out_dir / "merged"))
+        tokenizer.save_pretrained(str(out_dir / "merged"))
+        print(f"Merged: {out_dir / 'merged'}")
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
@@ -320,11 +382,13 @@ def parse_args() -> TrainConfig:
     p.add_argument("--max_seq_len",  type=int,   default=512)
     p.add_argument("--num_epochs",   type=int,   default=5)
     p.add_argument("--lr",           type=float, default=2e-4)
-    p.add_argument("--train_batch",  type=int,   default=4)
-    p.add_argument("--grad_accum",   type=int,   default=4)
+    p.add_argument("--train_batch",  type=int,   default=2)
+    p.add_argument("--grad_accum",   type=int,   default=8)
     p.add_argument("--lora_r",       type=int,   default=16)
+    p.add_argument("--warmup_steps", type=int,   default=200)
     p.add_argument("--seed",         type=int,   default=42)
     p.add_argument("--eval_samples", type=int,   default=200)
+    p.add_argument("--log_every",    type=int,   default=50)
     p.add_argument("--save_merged",  action="store_true")
     a = p.parse_args()
     return TrainConfig(**vars(a))
@@ -332,4 +396,5 @@ def parse_args() -> TrainConfig:
 
 if __name__ == "__main__":
     cfg = parse_args()
+    print(f"Output dir: {cfg.output_dir}")
     train(cfg)
