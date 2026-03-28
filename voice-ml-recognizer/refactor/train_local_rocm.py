@@ -76,12 +76,12 @@ class TrainConfig:
     train_file:   str   = "train_aug.jsonl"
     output_dir:   str   = "output/rocm_lora"
     base_model:   str   = "Qwen/Qwen2.5-0.5B-Instruct"
-    max_seq_len:  int   = 256   # 256 copre il 95%+ dei sample; risparmia ~4x VRAM sulle attivazioni
+    max_seq_len:  int   = 256   # testato OK con gradient checkpointing
     num_epochs:   int   = 5
     lr:           float = 2e-4
     warmup_steps: int   = 200
-    train_batch:  int   = 1    # 1 sample per step su DirectML (8GB VRAM fp32)
-    grad_accum:   int   = 16   # effective batch = 16, invariato rispetto a prima
+    train_batch:  int   = 2    # 2 con grad_checkpointing; torna a 1 se OOM
+    grad_accum:   int   = 8    # effective batch = 16
     weight_decay: float = 0.01
     lora_r:       int   = 16
     lora_alpha:   int   = 32
@@ -180,6 +180,11 @@ def load_model_and_tokenizer(cfg: TrainConfig):
     for name, param in model.named_parameters():
         if param.requires_grad:
             param.data = param.data.float()
+
+    # Gradient checkpointing: ricalcola le attivazioni durante il backward
+    # invece di tenerle in VRAM → dimezza la memoria delle attivazioni
+    model.enable_input_require_grads()
+    model.gradient_checkpointing_enable()
 
     model.print_trainable_parameters()
 
