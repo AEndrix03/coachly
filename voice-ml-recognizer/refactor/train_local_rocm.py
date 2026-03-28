@@ -142,10 +142,11 @@ def build_tokenize_fn(tokenizer, max_len: int):
 
 
 def collate_fn(batch):
+    import numpy as np
     return {
-        "input_ids":      torch.tensor([x["input_ids"]      for x in batch], dtype=torch.long),
-        "attention_mask": torch.tensor([x["attention_mask"] for x in batch], dtype=torch.long),
-        "labels":         torch.tensor([x["labels"]         for x in batch], dtype=torch.long),
+        "input_ids":      torch.from_numpy(np.array([x["input_ids"]      for x in batch])).long(),
+        "attention_mask": torch.from_numpy(np.array([x["attention_mask"] for x in batch])).long(),
+        "labels":         torch.from_numpy(np.array([x["labels"]         for x in batch])).long(),
     }
 
 
@@ -169,16 +170,19 @@ def _move(obj, device):
 def install_layer_offload(model, device):
     """
     Installa forward hooks su ogni DecoderLayer del modello.
-    pre_hook : layer → GPU, input → GPU
+    pre_hook : layer → GPU, args + kwargs → GPU  (with_kwargs=True obbligatorio:
+               position_embeddings/cos/sin arrivano come kwarg, non come arg posizionale)
     post_hook: output → CPU, layer → CPU
     Embedding, norm e lm_head rimangono su CPU.
     """
     layers = model.base_model.model.model.layers
 
     def make_pre(dev):
-        def pre_hook(module, args):
+        def pre_hook(module, args, kwargs):
             module.to(dev)
-            return _move(args, dev)
+            new_args   = _move(args, dev)
+            new_kwargs = {k: _move(v, dev) for k, v in kwargs.items()}
+            return new_args, new_kwargs
         return pre_hook
 
     def make_post():
@@ -190,7 +194,7 @@ def install_layer_offload(model, device):
     pre  = make_pre(device)
     post = make_post()
     for layer in layers:
-        layer.register_forward_pre_hook(pre)
+        layer.register_forward_pre_hook(pre, with_kwargs=True)
         layer.register_forward_hook(post)
 
     print(f"  Offload hooks installati su {len(layers)} layer "
