@@ -149,6 +149,54 @@ def collate_fn(batch):
     }
 
 
+# ── Sequential layer offloading ───────────────────────────────────────────────
+# dispatch_model non funziona con DirectML (manca data_ptr sui tensor DML).
+# Soluzione: forward hooks che spostano ogni layer su GPU solo durante il suo
+# forward, poi lo riportano su CPU. In VRAM c'e' sempre solo 1 layer (~40MB)
+# invece dell'intero modello (~1GB).
+
+def _move(obj, device):
+    """Sposta ricorsivamente tutti i Tensor in strutture nested."""
+    if isinstance(obj, torch.Tensor):
+        return obj.to(device)
+    if isinstance(obj, tuple):
+        return tuple(_move(x, device) for x in obj)
+    if isinstance(obj, list):
+        return [_move(x, device) for x in obj]
+    return obj
+
+
+def install_layer_offload(model, device):
+    """
+    Installa forward hooks su ogni DecoderLayer del modello.
+    pre_hook : layer → GPU, input → GPU
+    post_hook: output → CPU, layer → CPU
+    Embedding, norm e lm_head rimangono su CPU.
+    """
+    layers = model.base_model.model.model.layers
+
+    def make_pre(dev):
+        def pre_hook(module, args):
+            module.to(dev)
+            return _move(args, dev)
+        return pre_hook
+
+    def make_post():
+        def post_hook(module, args, output):
+            module.to("cpu")
+            return _move(output, "cpu")
+        return post_hook
+
+    pre  = make_pre(device)
+    post = make_post()
+    for layer in layers:
+        layer.register_forward_pre_hook(pre)
+        layer.register_forward_hook(post)
+
+    print(f"  Offload hooks installati su {len(layers)} layer "
+          f"(GPU compute: {str(device)}, pesi: CPU)")
+
+
 # ── Model setup ───────────────────────────────────────────────────────────────
 
 def load_model_and_tokenizer(cfg: TrainConfig):
@@ -176,7 +224,7 @@ def load_model_and_tokenizer(cfg: TrainConfig):
     model = get_peft_model(base, lora_cfg)
     model.print_trainable_parameters()
 
-    # LoRA in fp32 per stabilità numerica
+    # LoRA in fp32 per stabilità numerica (rimane su CPU)
     for _, p in model.named_parameters():
         if p.requires_grad:
             p.data = p.data.float()
@@ -184,8 +232,8 @@ def load_model_and_tokenizer(cfg: TrainConfig):
     model.enable_input_require_grads()
     model.gradient_checkpointing_enable()
 
-    print(f"  Sposto modello su {_DEVICE}...")
-    model = model.to(_DEVICE)
+    # Installa sequential offload: compute su GPU, pesi su CPU
+    install_layer_offload(model, _DEVICE)
     return model, tokenizer
 
 
@@ -206,10 +254,11 @@ def eval_loss(model, loader_val) -> float:
     n = 0
     with torch.no_grad():
         for batch in loader_val:
+            # Tutto parte da CPU; gli hook spostano i layer su GPU layer per layer
             out = model(
-                input_ids=batch["input_ids"].to(_DEVICE),
-                attention_mask=batch["attention_mask"].to(_DEVICE),
-                labels=batch["labels"].to(_DEVICE),
+                input_ids=batch["input_ids"],
+                attention_mask=batch["attention_mask"],
+                labels=batch["labels"],
             )
             total_loss += out.loss.item()
             n += 1
@@ -227,7 +276,7 @@ def quick_eval_accuracy(model, tokenizer, ds_test, cfg: TrainConfig) -> Dict:
         prompt = tokenizer.apply_chat_template(
             msgs[:-1], tokenize=False, add_generation_prompt=True
         )
-        ids = tokenizer(prompt, return_tensors="pt").input_ids.to(_DEVICE)
+        ids = tokenizer(prompt, return_tensors="pt").input_ids  # CPU; hook gestisce GPU
         with torch.no_grad():
             out = model.generate(
                 input_ids=ids, max_new_tokens=200, do_sample=False,
@@ -310,11 +359,12 @@ def train(cfg: TrainConfig):
         accum_count  = 0
 
         for step_in_epoch, batch in enumerate(loader_train, 1):
-            ids  = batch["input_ids"].to(_DEVICE)
-            attn = batch["attention_mask"].to(_DEVICE)
-            lbls = batch["labels"].to(_DEVICE)
-
-            out  = model(input_ids=ids, attention_mask=attn, labels=lbls)
+            # Tensori su CPU; gli hook spostano ogni layer su GPU durante il forward
+            out  = model(
+                input_ids=batch["input_ids"],
+                attention_mask=batch["attention_mask"],
+                labels=batch["labels"],
+            )
             loss = out.loss / cfg.grad_accum
             loss.backward()
 
@@ -389,7 +439,7 @@ def parse_args() -> TrainConfig:
     p.add_argument("--max_seq_len",  type=int,   default=512)
     p.add_argument("--num_epochs",   type=int,   default=5)
     p.add_argument("--lr",           type=float, default=2e-4)
-    p.add_argument("--train_batch",  type=int,   default=2)
+    p.add_argument("--train_batch",  type=int,   default=1)
     p.add_argument("--grad_accum",   type=int,   default=8)
     p.add_argument("--lora_r",       type=int,   default=16)
     p.add_argument("--warmup_steps", type=int,   default=200)
