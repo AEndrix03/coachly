@@ -47,10 +47,10 @@ else:
         print("  Esegui setup_windows_gpu.ps1 per installare le dipendenze GPU.")
         raise SystemExit(1)
 
+from accelerate import dispatch_model
 from datasets import load_dataset
 from peft import LoraConfig, TaskType, get_peft_model
 from torch.optim import AdamW
-from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -76,12 +76,13 @@ class TrainConfig:
     train_file:   str   = "train_aug.jsonl"
     output_dir:   str   = "output/rocm_lora"
     base_model:   str   = "Qwen/Qwen2.5-0.5B-Instruct"
-    max_seq_len:  int   = 256   # testato OK con gradient checkpointing
+    max_seq_len:  int   = 256
     num_epochs:   int   = 5
     lr:           float = 2e-4
     warmup_steps: int   = 200
-    train_batch:  int   = 2    # 2 con grad_checkpointing; torna a 1 se OOM
+    train_batch:  int   = 2
     grad_accum:   int   = 8    # effective batch = 16
+    gpu_layers:   int   = 12   # layer su DirectML (0-24); gli altri su CPU — regola per VRAM
     weight_decay: float = 0.01
     lora_r:       int   = 16
     lora_alpha:   int   = 32
@@ -152,19 +153,35 @@ def collate_fn(batch):
 
 # ── Model setup ───────────────────────────────────────────────────────────────
 
+def _build_device_map(n_total_layers: int, gpu_layers: int) -> dict:
+    """
+    Mappa layer per layer: i primi gpu_layers su DirectML, il resto su CPU.
+    embed_tokens e lm_head restano sempre su CPU (input/output del DataLoader).
+    """
+    gpu_str = str(_DEVICE)   # "privateuseone:0"
+    dm = {"model.embed_tokens": "cpu"}
+    for i in range(n_total_layers):
+        dm[f"model.layers.{i}"] = gpu_str if i < gpu_layers else "cpu"
+    dm["model.norm"] = "cpu"
+    dm["lm_head"]    = "cpu"
+    return dm
+
+
 def load_model_and_tokenizer(cfg: TrainConfig):
     tokenizer = AutoTokenizer.from_pretrained(cfg.base_model, use_fast=True)
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token_id = tokenizer.eos_token_id
 
-    print("  Carico base model in fp16 su CPU (frozen params)...")
-    model = AutoModelForCausalLM.from_pretrained(
+    n_layers = cfg.gpu_layers  # quanti layer vanno su GPU
+    print(f"  Carico base model fp16 su CPU (split: {n_layers} layer su GPU, resto CPU)...")
+    base = AutoModelForCausalLM.from_pretrained(
         cfg.base_model,
-        torch_dtype=torch.float16,   # fp16 per i pesi frozen: ~1 GB invece di ~2 GB
+        torch_dtype=torch.float16,
         low_cpu_mem_usage=True,
     )
-    model.config.use_cache = False
+    base.config.use_cache = False
 
+    # Applica LoRA prima del dispatch: i param LoRA vengono creati su CPU
     lora_cfg = LoraConfig(
         task_type=TaskType.CAUSAL_LM,
         r=cfg.lora_r,
@@ -174,22 +191,32 @@ def load_model_and_tokenizer(cfg: TrainConfig):
                         "gate_proj", "up_proj", "down_proj"],
         bias="none",
     )
-    model = get_peft_model(model, lora_cfg)
+    model = get_peft_model(base, lora_cfg)
 
-    # Riporta i soli pesi LoRA trainable in fp32 per stabilità numerica
-    for name, param in model.named_parameters():
-        if param.requires_grad:
-            param.data = param.data.float()
+    # LoRA in fp32 per stabilità, tutto ancora su CPU
+    for _, p in model.named_parameters():
+        if p.requires_grad:
+            p.data = p.data.float()
 
-    # Gradient checkpointing: ricalcola le attivazioni durante il backward
-    # invece di tenerle in VRAM → dimezza la memoria delle attivazioni
     model.enable_input_require_grads()
     model.gradient_checkpointing_enable()
-
     model.print_trainable_parameters()
 
-    print(f"  Sposto il modello su {_DEVICE}...")
-    model = model.to(_DEVICE)
+    # Dispatch: sposta i layer 0..n-1 su DirectML, il resto resta su CPU.
+    # Le module name nel PEFT model hanno prefisso "base_model.model."
+    total_layers = len(base.model.layers)
+    gpu_str = str(_DEVICE)
+    device_map = {
+        "base_model.model.model.embed_tokens": "cpu",
+        **{
+            f"base_model.model.model.layers.{i}": (gpu_str if i < n_layers else "cpu")
+            for i in range(total_layers)
+        },
+        "base_model.model.model.norm": "cpu",
+        "base_model.model.lm_head":    "cpu",
+    }
+    print(f"  Dispatch: {n_layers}/{total_layers} layer su {gpu_str}, resto su CPU...")
+    model = dispatch_model(model, device_map=device_map)
     return model, tokenizer
 
 
@@ -204,16 +231,18 @@ def get_lr(step: int, warmup: int, max_steps: int, max_lr: float, min_lr: float 
 
 # ── Eval ──────────────────────────────────────────────────────────────────────
 
-def eval_loss(model, loader_val, device) -> float:
+def eval_loss(model, loader_val, _ignored_device=None) -> float:
     model.eval()
     total_loss = 0.0
     n = 0
     with torch.no_grad():
         for batch in loader_val:
-            ids   = batch["input_ids"].to(device)
-            attn  = batch["attention_mask"].to(device)
-            lbls  = batch["labels"].to(device)
-            out   = model(input_ids=ids, attention_mask=attn, labels=lbls)
+            # Input su CPU — dispatch_model sposta le attivazioni layer per layer
+            out = model(
+                input_ids=batch["input_ids"],
+                attention_mask=batch["attention_mask"],
+                labels=batch["labels"],
+            )
             total_loss += out.loss.item()
             n += 1
     model.train()
@@ -230,7 +259,7 @@ def quick_eval_accuracy(model, tokenizer, ds_test, cfg: TrainConfig) -> Dict:
         prompt = tokenizer.apply_chat_template(
             msgs[:-1], tokenize=False, add_generation_prompt=True
         )
-        ids = tokenizer(prompt, return_tensors="pt").input_ids.to(_DEVICE)
+        ids = tokenizer(prompt, return_tensors="pt").input_ids  # stays on CPU; dispatch_model routes layers
         with torch.no_grad():
             out = model.generate(
                 input_ids=ids, max_new_tokens=200, do_sample=False,
@@ -287,32 +316,54 @@ def train(cfg: TrainConfig):
         shuffle=False, collate_fn=collate_fn, num_workers=0,
     )
 
-    optimizer = AdamW(
-        [p for p in model.parameters() if p.requires_grad],
-        lr=cfg.lr, weight_decay=cfg.weight_decay,
-    )
+    # Due ottimizzatori separati: param LoRA su GPU e param LoRA su CPU
+    # (AdamW non supporta param su device misti nello stesso gruppo)
+    trainable = [(n, p) for n, p in model.named_parameters() if p.requires_grad]
+    gpu_params = [p for _, p in trainable if p.device.type != "cpu"]
+    cpu_params = [p for _, p in trainable if p.device.type == "cpu"]
+    print(f"  Param trainable: {len(gpu_params)} su GPU, {len(cpu_params)} su CPU")
+
+    opts = []
+    if gpu_params:
+        opts.append(AdamW(gpu_params, lr=cfg.lr, weight_decay=cfg.weight_decay))
+    if cpu_params:
+        opts.append(AdamW(cpu_params, lr=cfg.lr, weight_decay=cfg.weight_decay))
+
+    def set_lr(lr):
+        for opt in opts:
+            for g in opt.param_groups:
+                g["lr"] = lr
+
+    def opts_step():
+        for opt in opts:
+            opt.step()
+
+    def opts_zero_grad():
+        for opt in opts:
+            opt.zero_grad()
 
     steps_per_epoch = math.ceil(len(loader_train) / cfg.grad_accum)
     total_steps     = steps_per_epoch * cfg.num_epochs
 
-    print(f"\n[4/4] Training ({_DEVICE}) ...")
+    print(f"\n[4/4] Training (split CPU+GPU) ...")
     print(f"  epochs={cfg.num_epochs}  steps/epoch={steps_per_epoch}  total={total_steps}")
     print(f"  batch={cfg.train_batch}  grad_accum={cfg.grad_accum}  effective_batch={cfg.train_batch * cfg.grad_accum}")
 
-    best_val_loss  = float("inf")
-    global_step    = 0
-    t0             = time.time()
+    best_val_loss = float("inf")
+    global_step   = 0
+    t0            = time.time()
 
     for epoch in range(1, cfg.num_epochs + 1):
         model.train()
-        optimizer.zero_grad()
-        running_loss  = 0.0
-        accum_count   = 0
+        opts_zero_grad()
+        running_loss = 0.0
+        accum_count  = 0
 
         for step_in_epoch, batch in enumerate(loader_train, 1):
-            ids  = batch["input_ids"].to(_DEVICE)
-            attn = batch["attention_mask"].to(_DEVICE)
-            lbls = batch["labels"].to(_DEVICE)
+            # Input su CPU: embed_tokens e' su CPU, dispatch_model gestisce il resto
+            ids  = batch["input_ids"]
+            attn = batch["attention_mask"]
+            lbls = batch["labels"]
 
             out  = model(input_ids=ids, attention_mask=attn, labels=lbls)
             loss = out.loss / cfg.grad_accum
@@ -322,16 +373,14 @@ def train(cfg: TrainConfig):
             accum_count  += 1
 
             if accum_count == cfg.grad_accum or step_in_epoch == len(loader_train):
-                # LR schedule
                 lr_now = get_lr(global_step, cfg.warmup_steps, total_steps, cfg.lr)
-                for g in optimizer.param_groups:
-                    g["lr"] = lr_now
+                set_lr(lr_now)
 
-                torch.nn.utils.clip_grad_norm_(
-                    [p for p in model.parameters() if p.requires_grad], max_norm=1.0
-                )
-                optimizer.step()
-                optimizer.zero_grad()
+                all_trainable = [p for p in model.parameters() if p.requires_grad]
+                torch.nn.utils.clip_grad_norm_(all_trainable, max_norm=1.0)
+
+                opts_step()
+                opts_zero_grad()
 
                 global_step += 1
                 accum_count  = 0
@@ -346,8 +395,8 @@ def train(cfg: TrainConfig):
                           f"ETA={eta/60:.0f}min")
                     running_loss = 0.0
 
-        # End of epoch: eval
-        val_loss = eval_loss(model, loader_val, _DEVICE)
+        # End of epoch: eval (input su CPU, dispatch_model gestisce device)
+        val_loss = eval_loss(model, loader_val, "cpu")
         elapsed  = (time.time() - t0) / 60
         print(f"\n  [Epoch {epoch}] val_loss={val_loss:.4f}  elapsed={elapsed:.0f}min")
 
