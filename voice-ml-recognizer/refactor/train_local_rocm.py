@@ -76,12 +76,12 @@ class TrainConfig:
     train_file:   str   = "train_aug.jsonl"
     output_dir:   str   = "output/rocm_lora"
     base_model:   str   = "Qwen/Qwen2.5-0.5B-Instruct"
-    max_seq_len:  int   = 512
+    max_seq_len:  int   = 256   # 256 copre il 95%+ dei sample; risparmia ~4x VRAM sulle attivazioni
     num_epochs:   int   = 5
     lr:           float = 2e-4
     warmup_steps: int   = 200
-    train_batch:  int   = 2    # per step; riduci a 1 se OOM
-    grad_accum:   int   = 8    # effective batch = 16
+    train_batch:  int   = 1    # 1 sample per step su DirectML (8GB VRAM fp32)
+    grad_accum:   int   = 16   # effective batch = 16, invariato rispetto a prima
     weight_decay: float = 0.01
     lora_r:       int   = 16
     lora_alpha:   int   = 32
