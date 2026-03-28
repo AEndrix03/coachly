@@ -274,7 +274,6 @@ def train(cfg: TrainConfig):
         dataloader_num_workers=0,
         seed=cfg.seed,
         report_to="none",
-        no_cuda=_USE_DML,         # evita che HF Trainer cerchi CUDA quando usiamo DML
     )
 
     collator = DataCollatorForSeq2Seq(
