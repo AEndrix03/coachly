@@ -47,7 +47,6 @@ else:
         print("  Esegui setup_windows_gpu.ps1 per installare le dipendenze GPU.")
         raise SystemExit(1)
 
-from accelerate import dispatch_model
 from datasets import load_dataset
 from peft import LoraConfig, TaskType, get_peft_model
 from torch.optim import AdamW
@@ -80,9 +79,8 @@ class TrainConfig:
     num_epochs:   int   = 5
     lr:           float = 2e-4
     warmup_steps: int   = 200
-    train_batch:  int   = 2
-    grad_accum:   int   = 8    # effective batch = 16
-    gpu_layers:   int   = 12   # layer su DirectML (0-24); gli altri su CPU — regola per VRAM
+    train_batch:  int   = 1
+    grad_accum:   int   = 16   # effective batch = 16
     weight_decay: float = 0.01
     lora_r:       int   = 16
     lora_alpha:   int   = 32
@@ -153,27 +151,12 @@ def collate_fn(batch):
 
 # ── Model setup ───────────────────────────────────────────────────────────────
 
-def _build_device_map(n_total_layers: int, gpu_layers: int) -> dict:
-    """
-    Mappa layer per layer: i primi gpu_layers su DirectML, il resto su CPU.
-    embed_tokens e lm_head restano sempre su CPU (input/output del DataLoader).
-    """
-    gpu_str = str(_DEVICE)   # "privateuseone:0"
-    dm = {"model.embed_tokens": "cpu"}
-    for i in range(n_total_layers):
-        dm[f"model.layers.{i}"] = gpu_str if i < gpu_layers else "cpu"
-    dm["model.norm"] = "cpu"
-    dm["lm_head"]    = "cpu"
-    return dm
-
-
 def load_model_and_tokenizer(cfg: TrainConfig):
     tokenizer = AutoTokenizer.from_pretrained(cfg.base_model, use_fast=True)
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token_id = tokenizer.eos_token_id
 
-    n_layers = cfg.gpu_layers  # quanti layer vanno su GPU
-    print(f"  Carico base model fp16 su CPU (split: {n_layers} layer su GPU, resto CPU)...")
+    print(f"  Carico base model fp16 su CPU...")
     base = AutoModelForCausalLM.from_pretrained(
         cfg.base_model,
         torch_dtype=torch.float16,
@@ -181,7 +164,6 @@ def load_model_and_tokenizer(cfg: TrainConfig):
     )
     base.config.use_cache = False
 
-    # Applica LoRA prima del dispatch: i param LoRA vengono creati su CPU
     lora_cfg = LoraConfig(
         task_type=TaskType.CAUSAL_LM,
         r=cfg.lora_r,
@@ -192,31 +174,18 @@ def load_model_and_tokenizer(cfg: TrainConfig):
         bias="none",
     )
     model = get_peft_model(base, lora_cfg)
+    model.print_trainable_parameters()
 
-    # LoRA in fp32 per stabilità, tutto ancora su CPU
+    # LoRA in fp32 per stabilità numerica
     for _, p in model.named_parameters():
         if p.requires_grad:
             p.data = p.data.float()
 
     model.enable_input_require_grads()
     model.gradient_checkpointing_enable()
-    model.print_trainable_parameters()
 
-    # Dispatch: sposta i layer 0..n-1 su DirectML, il resto resta su CPU.
-    # Le module name nel PEFT model hanno prefisso "base_model.model."
-    total_layers = len(base.model.layers)
-    gpu_str = str(_DEVICE)
-    device_map = {
-        "base_model.model.model.embed_tokens": "cpu",
-        **{
-            f"base_model.model.model.layers.{i}": (gpu_str if i < n_layers else "cpu")
-            for i in range(total_layers)
-        },
-        "base_model.model.model.norm": "cpu",
-        "base_model.model.lm_head":    "cpu",
-    }
-    print(f"  Dispatch: {n_layers}/{total_layers} layer su {gpu_str}, resto su CPU...")
-    model = dispatch_model(model, device_map=device_map)
+    print(f"  Sposto modello su {_DEVICE}...")
+    model = model.to(_DEVICE)
     return model, tokenizer
 
 
@@ -231,17 +200,16 @@ def get_lr(step: int, warmup: int, max_steps: int, max_lr: float, min_lr: float 
 
 # ── Eval ──────────────────────────────────────────────────────────────────────
 
-def eval_loss(model, loader_val, _ignored_device=None) -> float:
+def eval_loss(model, loader_val) -> float:
     model.eval()
     total_loss = 0.0
     n = 0
     with torch.no_grad():
         for batch in loader_val:
-            # Input su CPU — dispatch_model sposta le attivazioni layer per layer
             out = model(
-                input_ids=batch["input_ids"],
-                attention_mask=batch["attention_mask"],
-                labels=batch["labels"],
+                input_ids=batch["input_ids"].to(_DEVICE),
+                attention_mask=batch["attention_mask"].to(_DEVICE),
+                labels=batch["labels"].to(_DEVICE),
             )
             total_loss += out.loss.item()
             n += 1
@@ -259,7 +227,7 @@ def quick_eval_accuracy(model, tokenizer, ds_test, cfg: TrainConfig) -> Dict:
         prompt = tokenizer.apply_chat_template(
             msgs[:-1], tokenize=False, add_generation_prompt=True
         )
-        ids = tokenizer(prompt, return_tensors="pt").input_ids  # stays on CPU; dispatch_model routes layers
+        ids = tokenizer(prompt, return_tensors="pt").input_ids.to(_DEVICE)
         with torch.no_grad():
             out = model.generate(
                 input_ids=ids, max_new_tokens=200, do_sample=False,
@@ -316,31 +284,13 @@ def train(cfg: TrainConfig):
         shuffle=False, collate_fn=collate_fn, num_workers=0,
     )
 
-    # Due ottimizzatori separati: param LoRA su GPU e param LoRA su CPU
-    # (AdamW non supporta param su device misti nello stesso gruppo)
-    trainable = [(n, p) for n, p in model.named_parameters() if p.requires_grad]
-    gpu_params = [p for _, p in trainable if p.device.type != "cpu"]
-    cpu_params = [p for _, p in trainable if p.device.type == "cpu"]
-    print(f"  Param trainable: {len(gpu_params)} su GPU, {len(cpu_params)} su CPU")
-
-    opts = []
-    if gpu_params:
-        opts.append(AdamW(gpu_params, lr=cfg.lr, weight_decay=cfg.weight_decay))
-    if cpu_params:
-        opts.append(AdamW(cpu_params, lr=cfg.lr, weight_decay=cfg.weight_decay))
+    trainable_params = [p for p in model.parameters() if p.requires_grad]
+    print(f"  Param trainable: {sum(p.numel() for p in trainable_params):,}")
+    opt = AdamW(trainable_params, lr=cfg.lr, weight_decay=cfg.weight_decay)
 
     def set_lr(lr):
-        for opt in opts:
-            for g in opt.param_groups:
-                g["lr"] = lr
-
-    def opts_step():
-        for opt in opts:
-            opt.step()
-
-    def opts_zero_grad():
-        for opt in opts:
-            opt.zero_grad()
+        for g in opt.param_groups:
+            g["lr"] = lr
 
     steps_per_epoch = math.ceil(len(loader_train) / cfg.grad_accum)
     total_steps     = steps_per_epoch * cfg.num_epochs
@@ -355,15 +305,14 @@ def train(cfg: TrainConfig):
 
     for epoch in range(1, cfg.num_epochs + 1):
         model.train()
-        opts_zero_grad()
+        opt.zero_grad()
         running_loss = 0.0
         accum_count  = 0
 
         for step_in_epoch, batch in enumerate(loader_train, 1):
-            # Input su CPU: embed_tokens e' su CPU, dispatch_model gestisce il resto
-            ids  = batch["input_ids"]
-            attn = batch["attention_mask"]
-            lbls = batch["labels"]
+            ids  = batch["input_ids"].to(_DEVICE)
+            attn = batch["attention_mask"].to(_DEVICE)
+            lbls = batch["labels"].to(_DEVICE)
 
             out  = model(input_ids=ids, attention_mask=attn, labels=lbls)
             loss = out.loss / cfg.grad_accum
@@ -376,11 +325,10 @@ def train(cfg: TrainConfig):
                 lr_now = get_lr(global_step, cfg.warmup_steps, total_steps, cfg.lr)
                 set_lr(lr_now)
 
-                all_trainable = [p for p in model.parameters() if p.requires_grad]
-                torch.nn.utils.clip_grad_norm_(all_trainable, max_norm=1.0)
+                torch.nn.utils.clip_grad_norm_(trainable_params, max_norm=1.0)
 
-                opts_step()
-                opts_zero_grad()
+                opt.step()
+                opt.zero_grad()
 
                 global_step += 1
                 accum_count  = 0
@@ -395,8 +343,7 @@ def train(cfg: TrainConfig):
                           f"ETA={eta/60:.0f}min")
                     running_loss = 0.0
 
-        # End of epoch: eval (input su CPU, dispatch_model gestisce device)
-        val_loss = eval_loss(model, loader_val, "cpu")
+        val_loss = eval_loss(model, loader_val)
         elapsed  = (time.time() - t0) / 60
         print(f"\n  [Epoch {epoch}] val_loss={val_loss:.4f}  elapsed={elapsed:.0f}min")
 
