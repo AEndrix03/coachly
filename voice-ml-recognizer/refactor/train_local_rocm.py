@@ -157,10 +157,10 @@ def load_model_and_tokenizer(cfg: TrainConfig):
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token_id = tokenizer.eos_token_id
 
-    print("  Carico base model su CPU...")
+    print("  Carico base model in fp16 su CPU (frozen params)...")
     model = AutoModelForCausalLM.from_pretrained(
         cfg.base_model,
-        torch_dtype=torch.float32,  # DirectML richiede fp32
+        torch_dtype=torch.float16,   # fp16 per i pesi frozen: ~1 GB invece di ~2 GB
         low_cpu_mem_usage=True,
     )
     model.config.use_cache = False
@@ -175,6 +175,12 @@ def load_model_and_tokenizer(cfg: TrainConfig):
         bias="none",
     )
     model = get_peft_model(model, lora_cfg)
+
+    # Riporta i soli pesi LoRA trainable in fp32 per stabilità numerica
+    for name, param in model.named_parameters():
+        if param.requires_grad:
+            param.data = param.data.float()
+
     model.print_trainable_parameters()
 
     print(f"  Sposto il modello su {_DEVICE}...")
