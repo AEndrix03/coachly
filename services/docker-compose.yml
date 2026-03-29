@@ -47,6 +47,35 @@ services:
       - "9102:8080"
     restart: unless-stopped
 
+  coachly-feedback-be:
+    build:
+      context: ./coachly-feedback-be
+      dockerfile: Dockerfile
+    container_name: coachly-feedback-be
+    environment:
+      COACHLY_DB_URL: jdbc:postgresql://dev.aredegalli.it:5432/coachlys
+      COACHLY_DB_USERNAME: postgres
+      COACHLY_DB_PASSWORD: igSMLpZajwpRExnOceToecnxbQNoRlaq
+      SERVER_PORT: 8080
+    expose:
+      - "8080"
+    ports:
+      - "9103:8080"
+    restart: unless-stopped
+
+  coachly-coach-be:
+    build:
+      context: ./coachly-coach-be
+      dockerfile: Dockerfile
+    container_name: coachly-coach-be
+    profiles:
+      - coach
+    expose:
+      - "8080"
+    ports:
+      - "9104:8080"
+    restart: unless-stopped
+
   coachly-api-gateway:
     build:
       context: ./coachly-api-gateway
@@ -56,11 +85,14 @@ services:
       - coachly-users-be
       - coachly-workouts-be
       - coachly-exercises-be
+      - coachly-feedback-be
     environment:
       SERVER_PORT: 8443
       USERS_SERVICE_URI: http://coachly-users-be:8080
       WORKOUTS_SERVICE_URI: http://coachly-workouts-be:8080
       EXERCISES_SERVICE_URI: http://coachly-exercises-be:8080
+      FEEDBACK_SERVICE_URI: http://coachly-feedback-be:8080
+      COACH_SERVICE_URI: http://coachly-coach-be:8080
       KEYCLOAK_ISSUER_URI: https://auth.aredegalli.it/realms/coachly-app
       COACHLY_KEYSTORE_PASSWORD: Xd`?6|z9I))!>cF}%2)r3C2tPPGHo8#%
       COACHLY_CORS_ALLOWED_ORIGINS: '*'
