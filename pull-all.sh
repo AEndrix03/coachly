@@ -15,6 +15,8 @@ pull_repo() {
   )
 }
 
+pull_repo "$ROOT_DIR"
+
 for dir in "$ROOT_DIR"/*; do
   [ -d "$dir" ] || continue
 
