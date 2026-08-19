@@ -1,6 +1,9 @@
 [submodule "coachly-fe"]
 	path = coachly-fe
 	url = https://github.com/AEndrix03/coachly-fe
+[submodule "coachly-business-fe"]
+	path = coachly-business-fe
+	url = https://github.com/AEndrix03/coachly-business-fe
 [submodule "services/coachly-api-gateway"]
 	path = services/coachly-api-gateway
 	url = https://github.com/AEndrix03/coachly-api-gateway
