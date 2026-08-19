@@ -4,30 +4,9 @@ set -eu
 
 ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 
-pull_repo() {
-  repo_dir="$1"
-  repo_name="$(basename "$repo_dir")"
+echo "==> aggregator"
+git -C "$ROOT_DIR" pull --ff-only
 
-  echo "==> $repo_name"
-  (
-    cd "$repo_dir"
-    git pull --ff-only
-  )
-}
-
-pull_repo "$ROOT_DIR"
-
-for dir in "$ROOT_DIR"/*; do
-  [ -d "$dir" ] || continue
-
-  if [ -d "$dir/.git" ]; then
-    pull_repo "$dir"
-    continue
-  fi
-
-  for subdir in "$dir"/*; do
-    [ -d "$subdir" ] || continue
-    [ -d "$subdir/.git" ] || continue
-    pull_repo "$subdir"
-  done
-done
+echo "==> submodules"
+git -C "$ROOT_DIR" submodule sync --recursive
+git -C "$ROOT_DIR" submodule update --init --recursive

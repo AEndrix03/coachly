@@ -1,6 +1,33 @@
 [submodule "coachly-fe"]
 	path = coachly-fe
 	url = https://github.com/AEndrix03/coachly-fe
-[submodule "coachly-be"]
-	path = coachly-be
-	url = https://github.com/AEndrix03/coachly-be
+[submodule "services/coachly-api-gateway"]
+	path = services/coachly-api-gateway
+	url = https://github.com/AEndrix03/coachly-api-gateway
+[submodule "services/coachly-coach-be"]
+	path = services/coachly-coach-be
+	url = https://github.com/AEndrix03/coachly-coach-be
+[submodule "services/coachly-exercises-be"]
+	path = services/coachly-exercises-be
+	url = https://github.com/AEndrix03/coachly-exercises-be
+[submodule "services/coachly-feedback-be"]
+	path = services/coachly-feedback-be
+	url = https://github.com/AEndrix03/coachly-feedback-be
+[submodule "services/coachly-users-be"]
+	path = services/coachly-users-be
+	url = https://github.com/AEndrix03/coachly-users-be
+[submodule "services/coachly-workouts-be"]
+	path = services/coachly-workouts-be
+	url = https://github.com/AEndrix03/coachly-workouts-be
+[submodule "services/libs/coachly-commons-be-lib"]
+	path = services/libs/coachly-commons-be-lib
+	url = https://github.com/AEndrix03/coachly-commons-be-lib
+[submodule "services/libs/coachly-exercises-be-lib"]
+	path = services/libs/coachly-exercises-be-lib
+	url = https://github.com/AEndrix03/coachly-exercises-be-lib
+[submodule "services/libs/coachly-users-be-lib"]
+	path = services/libs/coachly-users-be-lib
+	url = https://github.com/AEndrix03/coachly-users-be-lib
+[submodule "services/libs/coachly-workouts-be-lib"]
+	path = services/libs/coachly-workouts-be-lib
+	url = https://github.com/AEndrix03/coachly-workouts-be-lib
